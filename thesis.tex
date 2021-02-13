@@ -1,0 +1,173 @@
+%%
+%% Template thesis.tex
+%%
+\documentclass{StyFiles/usydthesis}
+\usepackage[palatino]{StyFiles/anuthesis}
+\usepackage{graphicx}
+\usepackage{makeidx}
+\usepackage{microtype}
+% \usepackage{StyFiles/doublespace}
+
+% Chuck Added
+\usepackage[toc,page]{appendix}
+\usepackage{StyFiles/fancyhdr}
+% Gould Configurations
+
+% For figures
+% \ifCLASSINFOpdf
+% \usepackage[pdftex]{graphicx}
+% \DeclareGraphicsExtensions{.jpg,.png}
+% \else
+% \usepackage[dvips]{graphicx}
+% \DeclareGraphicsExtensions{.eps}
+% \fi
+
+% For citations
+\usepackage[sort,numbers]{StyFiles/natbib}
+\renewcommand{\citename}{\citet}
+\renewcommand{\cite}{\citep}
+\usepackage{StyFiles/natbibspacing}
+
+% For maths
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb,amsthm}
+
+% For algorithms
+\usepackage{StyFiles/algorithm}
+\usepackage{StyFiles/algorithmic}
+
+% For Hyperlinks
+\usepackage{hyperref}
+% fix problem between hyperref and algorithmic
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% For captions
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[font=footnotesize]{subfig}
+
+% My macros
+\usepackage{StyFiles/sg-macros}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{obs}[thm]{Observation}
+\newtheorem{defn}[thm]{Definition}
+
+\newcommand{\mmqp}[3]{\textrm{\sc MaxMarginQP}\!\left(\{\by_t, #1\}_{t=1}^{T}, #2, #3\right)}
+
+% correct bad hyphenation here
+\usepackage{StyFiles/hyphenat}
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Preamble
+\renewcommand{\thepage}{\roman{page}}
+
+\makeindex
+\begin{document}
+
+\pagenumbering{roman}  % first use Roman numerals for page numbers
+% initial page numbers:  i, ii, iii, ...
+\renewcommand{\thepage}{\roman{page}}	
+%%%%%%%%%%%%
+% Title page
+\font\myfont=cmr12 at 20pt 
+\title{{\myfont\bf SEQUENCE LEARNING USING DEEP NEURAL NETWORKS WITH FLEXIBILITY AND INTERPRETABILITY}}
+\author{Chang Li}
+\def\thisauthor{Chang Li}
+\def\degree{Doctor of Philosophy}
+\def\department{School of Computer Science \\ Faculty of Engineering}
+\def\mydegrees{Doctor of Philosophy (Ph.D.)}
+\def\supervisor{Dacheng Tao}
+\def\assocsupervisora{Dongjin Song}
+%\def\sid{200342291}
+
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Title page
+% \pagestyle{empty}
+% \thispagestyle{empty}
+% \include{FrontBackMISC/titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Here begin the preliminaries
+\include{FrontBackMISC/frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Dedication (optional)
+\cleardoublepage
+\pagestyle{empty}
+\include{FrontBackMISC/dedication}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Acknowledgements (optional!)
+\cleardoublepage
+\pagestyle{empty}
+\include{FrontBackMISC/ack}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Abstract
+\cleardoublepage
+\pagestyle{headings}
+\include{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Table of contents
+\cleardoublepage
+\pagestyle{headings}
+\markboth{Contents}{Contents}
+\tableofcontents
+\listoffigures
+\listoftables
+
+\pagenumbering{arabic} % switch to Arabic numerals for page numbers
+\setcounter{page}{1}  % set page number to 1
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Other options
+% \begin{doublepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Here begins the main text
+\mainmatter
+
+%% Introduction
+\include{intro}
+
+%% Chapters
+\include{RelatedWorks/RelatedWorks}
+\include{Methodology/Methodology}
+\include{Experiments/Experiments}
+
+%% Conclusion
+\include{conclusion}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Here begins the end matter
+
+%\include{FrontBackMISC/appendix}
+
+\backmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Other options
+% \end{doublepage}
+
+\bibliographystyle{abbrvnat}
+\bibliography{Bibs/thesis,Bibs/long,Bibs/scene}
+
+\printindex
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End: 
+
+
+

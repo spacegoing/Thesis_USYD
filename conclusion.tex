@@ -1,0 +1,127 @@
+%%
+%% Template conclusion.tex
+%%
+
+\chapter{Conclusion and Future Work}
+\label{cha:conclusion}
+
+We summarize our work in this chapter. We will also conclude its
+advantages and disadvantages basing on our synthetic
+(section~\ref{sec:synth-check}) and real-world
+(section~\ref{sec:foregr-extr}) experiments' results. Our work
+also provide some insights to our future work which we will
+briefly discuss in this chapter.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+Lower linear envelope binary MRFs are raising interests due to
+its capability for encoding higher-order consistency constraints
+over large sets of random variables. \citename{gouldlearning} has
+shown how to perform exact inference and learning of this problem
+under the max margin framework. In order to transform the lower
+linear envelope function to a linear combination formulation,
+they interpolates it with a set of fixed space sample points.
+Thus their algorithm is only able to learn the shape of the lower
+linear envelope function approximately.
+
+The main goal of our research is to learn the lower linear
+envelope function exactly. Based on their work, we explore a
+variant of their formulation by introducing auxiliary variables
+back to the energy function to formulate an exact representation.
+We find that the lower linear envelope function under the
+quadratic pseudo-Boolean formulation~\eqref{eq:originalenergy}
+itself is an inner product of parameters and features thus can be
+written into a linear combination directly. Under this
+formulation the inference algorithm (\emph{st min cut}
+construction) developed by \citename{gouldlearning} still adapts
+to our problem. Therefore, we are still able to conduct exact
+inference on our problem. We developed the learning
+\algref{alg:learning} using an extension of the max margin
+framework which is known as latent structural SVM. However, this
+algorithm is only guaranteed to decrease the objective function
+to a local minimum thus the initial point will affect the overall
+performance. In order to overcome this issue we also proposed an
+empirical initialization \algref{alg:init_theta}.
+
+In order to examine the effectiveness of our new algorithm, we
+repeat two experiments \citename{gouldlearning} conducted in
+their research and compare both results. In the first synthetic
+checkerboard experiment, we found that in general the new
+algorithm's accuracy is at least as well as the previous one. But
+on harder problem~\ref{sec:unif-distr-squar} the new method
+outperforms previous one significantly. The new method is much
+more computationally expensive during the training period.
+However it is more efficient during the testing stage because of
+the simplicity of the shape of the lower linear envelope. We also
+found that the shape learned by the new method can shift along
+with the changes of the input data which proves that we can learn
+the lower linear envelope exactly.
+
+We then take our algorithm to a harder real-world
+experiment~\ref{sec:foregr-extr}. It turns out that our new
+method has a slightly increasing in overall accuracy (0.6\%)
+compared to the previous method. There are much less holes in
+images inferred by our new method which certificates the lower
+linear envelope function learned by our formulation can better
+enforce higher order consistency in large cliques. However, the
+performance various significantly between cross-validation folds
+which indicates there are some generalization issues existing in
+our new method.
+
+At last we summarize the advantages and disadvantages as
+following.
+
+\bigskip
+
+Advantages of the new method (compared to the previous
+method~\cite{gouldlearning,Gould:ICML2011}):
+
+\begin{itemize}
+\item Able to learn the lower linear envelope exactly.
+\item Performs better (higher accuracy) on harder problems.
+\item Efficient to compute during testing due to the simplicity
+  of the shape of the lower linear envelope function.
+\end{itemize}
+
+Disadvantages of the new method:
+
+\begin{itemize}
+\item Only guaranteed to decrease to the local minimum.
+\item Computationally expensive during training.
+\item Generalization various significantly.
+\end{itemize}
+
+
+
+
+\section{Future Work}
+\label{sec:futurework}
+
+As we suggested in the conclusion, our new method seems to have
+some generalization issues (figure~\ref{fig:grabcut_worst} for
+example). It will be our primal goal to keep investigating into
+this problem. We also proposed an empirical initialization method
+in section~\ref{sec:mrflssvm_learning_algo}. For future work we
+would compare this method to others.
+
+Our research also provide insights to further directions.
+Extending our approach to multi-label MRFs seems to be very
+promising. Other straightforward extensions include the
+introduction of features for modulating the higher-order terms
+and the use of dynamic graph cuts~\cite{Kohli:PAMI07} for
+accelerating loss-augmented inference within our learning
+framework. Other optimization algorithms for solving our learning
+problem may also be considered, \eg the subgradient
+method~\cite{Nowozin:2011, Bertsekas:2004}.
+
+
+
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End: 

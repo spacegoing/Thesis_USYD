@@ -1,0 +1,39 @@
+%%
+%% Template abstract.tex
+%%
+
+\chapter*{Abstract}
+\label{cha:abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+The lower linear envelope potentials, one of higher-order
+potentials used in Markov Random Fields (MRFs) are raising
+interests in recent years due to its capability of enforcing
+consistency over large sets of random variables. Previous
+researches in this area are only able to learn the lower linear
+envelope function approximately thus losses a rich class of
+representations which may harm the model's performance.
+
+In this thesis we propose an exact formulation of the lower
+linear envelope function which can also be inferred exactly and
+learned using the latent structural SVM. We first show the
+implicit equivalence between the quadratic pseudo-Boolean
+formulation and linear combination formulation of the lower
+linear envelope. Then, with the exact inference developed by
+previous research~\cite{gouldlearning}, we propose the learning
+algorithm based on the linear combination formulation within a
+latent structural SVM framework.
+
+We experiment our algorithm on two experiments and demonstrate
+advantages and disadvantages between our new formulation and
+previous formulation~\cite{gouldlearning,Gould:ICML2011}. The
+results show that despite computational expensive during
+training, our new method is more efficient during testing, able
+to learn the lower linear envelope exactly and performs better on
+harder problems than the previous method.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "thesis"
+%%% End: 

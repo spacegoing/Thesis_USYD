@@ -1,0 +1,259 @@
+%% 
+%% 
+%% 
+
+\chapter{Related Work and Background}
+\label{cha:RelatedWorks}
+
+\section{Related Work}
+\subsection{Markov Random Fields}
+\label{sec:MRF}
+\emph{Markov Random Fields} are also known as \emph{undirected
+  graphical model} can be seen as a regularized joint
+log-probability distribution of arbitrary non-negative functions
+over a set of maximal cliques of the
+graph~\cite{bishop:2006:PRML}. Let $C$ denotes a maximal clique
+in one graph and $\by_C$ denotes the set of variables in that
+clique. Then the joint distribution can be written as:
+\begin{align}
+  p(\by)=\frac{1}{Z}\prod_{C}{\Psi_C(\by_C)}
+\end{align}
+\noindent where $\Psi$ is called \emph{potential functions} which
+can be defined as any non-negative functions and
+$Z=\sum_{\by}\prod_{C}{\Psi_C(\by_C)}$ which is a normalization
+constant. To infer labels which best explains input data set, we
+can find the \emph{maximum a posteriori} (MAP) labels by solving
+$\by^*=\argmax_{\by}p(\by)$. Because potential functions are
+restricted to be non-negative, it gives us more flexible
+representations by taking exponential of those terms. Thus the
+joint distribution becomes:
+\begin{align}
+  p(\by)=\frac{1}{Z}exp(-\sum_{C}{E_C(\by_C)})
+\end{align}
+\noindent where $E$ is called \emph{energy functions} which can be
+arbitrary functions. Therefore, \emph{maximum a posteriori}
+problem is equivalent to \emph{energy minimization} problem,
+which is also known as \emph{inference}:
+\begin{align}
+  \by^*=\argmax_{\by}p(\by)=\argmin_{\by}(-\sum_{C}{E_C(\by_C)})
+\end{align}
+To optimize the performance we can also consider a weighted
+version of energy functions. In order to do this we can decompose
+energy functions over nodes $\N$, edges $\E$ and higher order
+cliques $\C$~\cite{Szummer:ECCV08} then add weights on them
+accordingly. Let $\bw$ be the vector of parameters and $\phi$ be
+arbitrary feature function, then the energy can be decomposed as
+a set linear combinations of weights and feature vectors:
+
+\begin{align}
+  \label{eq:energyfunction_UPH}
+  E(\by;\bw)=\sum_{i\in \N}{\bw_i^U\phi^U(\by_i)}+
+  \sum_{(i,j)\in \E}{\bw_{ij}^P\phi^P(\by_i,\by_j)}+
+  \sum_{\by_C\in \C}{\bw_C^H\phi^H(\by_C)}
+\end{align}
+
+\noindent where $U$ denotes \emph{unary} terms, $P$ denotes
+\emph{pairwise} terms and $H$ denotes \emph{higher order} terms
+(when $|C|>2$ namely each clique contains more than two
+variables).
+
+A weight vector $\bw$ is more preferable if it gives the
+ground-truth assignments $\by_t$ less than or equal to energy
+value than any other assignments $y$:
+
+\begin{align}
+E(y_t,w)\leq E(y,w)~ \text{,~}\forall y \neq y_t
+\text{,~} y\in \Y
+\end{align}
+
+
+Thus the goal of \emph{learning} MRFs is to learn the parameter
+vector $\bw^*$ which returns the lowest energy value for the
+ground-truth labels $y_t$ relative to any other assignments
+$y$~\cite{Szummer:ECCV08}:
+
+\begin{align}
+\bw^* = argmax_{\bw}(E(y_t,w)-E(y,w))~ \text{,~}\forall y \neq y_t
+\text{,~} y\in \Y
+\end{align}
+
+We have introduced three main research topics of MRFs:
+definition of \emph{energy function} (potential functions),
+\emph{inference} problem (MAP or energy minimization) and
+\emph{learning} problem. As for energy function, our work focus
+on a class of higher-order potentials defined as a concave
+piecewise linear function which is known as lower linear envelope
+potentials over a clique of binary variables. It has been raising
+much interest due to its capability of encoding consistency
+constraints over large subsets of pixels in an
+image~\cite{Kohli:CVPR07,Nowozin:2011}.
+
+\citename{kohli2009robust} proposed a method to represent a class
+of higher order potentials with lower (upper) linear envelope
+potentials. By introducing auxiliary
+variables~\cite{Kohli:CVPR10}, they reduced the linear
+representation to a pairwise form and proposed an approximate
+algorithm with standard linear programming methods. However, they
+only show an exact inference algorithm on at most three terms.
+Following their routine, \citename{gouldlearning} extended their
+method to a weighted lower linear envelope with arbitrary many
+terms which can be solved with an efficient algorithm. They
+showed the energy function with auxiliary variables is submodular
+by transforming it into a quadratic pseudo-Boolean
+form~\cite{Boros:MATH02} and how
+\emph{graph-cuts}~\cite{Hammer:1965, Boykov:ICCV01, Freedman:CVPR05} like
+algorithm can be applied to do exact \emph{inference}.
+
+\citename{gouldlearning} solved \emph{learning} problem of lower
+linear envelope under the max margin
+framework~\cite{tsochantaridis2005large}. In their work they
+pointed out the potential relationship between their auxiliary
+representation and latent SVM~\cite{yu2009learning}. Our work is
+closely based on their research. We continue to use the higher
+order energy function and inference algorithm developed in their
+previous work~\cite{Gould:ICML2011} and extend their max margin
+learning algorithm to include latent variables. The learning
+algorithm we use is an extension of max margin framework which is
+known as ``latent structural SVM''~\cite{yu2009learning}.
+
+\subsection{Latent Structural SVMs}
+\label{sec:latent-struct-svms}
+
+The max-margin
+framework~\cite{Taskar:ICML05,tsochantaridis2005large} is a
+principled approach to learn the weights of pairwise MRFs.
+\citename{Szummer:ECCV08} adapted this framework to optimize
+parameters of pairwise MRFs inferred by graph-cuts method. In our
+previous work \citename{gouldlearning} extended this framework
+with additional linear constraints which enforces concavity on
+weights thus can be used for learning lower linear envelope
+potentials.
+
+In this section we introduce \emph{latent structural
+  SVM}~\cite{yu2009learning} which extends the max-margin
+framework by encoding latent information in feature vector. In
+section~\ref{sec:learning} we will show how this framework can be
+adapted to learn parameters for higher order energy function with
+latent variables.
+
+Given an a linear combination of features vector $\phi(\bx ,\by)
+\in \reals^m$ and weights $\btheta \in \reals^m$, and a set of
+$n$ training examples $\{\by_i\}_{i=1}^n$ max-margin framework
+can be used to solve optimized solution $\btheta^*$. To include
+unobserved information in the model, Yu\cite{yu2009learning}
+extended the joint feature function\cite{tsochantaridis2005large}
+$\phi(\mathbf{x},\mathbf{y}) $ with a latent variable
+$\mathbf{h}\in \mathcal{H}$ to
+$\phi(\mathbf{x},\mathbf{y},\mathbf{h}) $. So the inference
+problem becomes
+\begin{align}
+  \label{eq:latent_ssvm_linearcomb}
+  f_\theta(x) = \argmax_{(\mathbf{y} \times \mathbf{h}) \in \mathcal{Y}
+  \times \mathcal{H}} \theta\cdot\phi(\mathbf{x},\mathbf{y},\mathbf{h})
+\end{align}
+
+Accordingly, the loss function can be extended as
+
+$$
+\Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
+$$
+
+\noindent where
+
+\begin{align}
+  \label{eq:latentssvm_full_inf}
+ (\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta))=\argmax_{(\mathbf{y}
+  \times \mathbf{h}) \in \mathcal{Y} \times \mathcal{H}}
+\theta\cdot\phi(\mathbf{x}_i,\mathbf{y_i},\mathbf{h})
+\end{align}
+
+\begin{align}
+  \label{eq:latentssvm_latent_inf}
+  \mathbf{h}^*_i(\theta) = \argmax_{\mathbf{h} \in \mathcal{H}} \theta \cdot
+  \phi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})
+\end{align}
+
+The loss function under this formulation measures difference
+between the inferred result pair $(\mathbf{\hat{y}}_i(\theta),
+\mathbf{\hat{h}}_i(\theta))$ and the pair $(\mathbf{y}_i(\theta),
+\mathbf{h}_i^*(\theta))$ which best explains the training data.
+However, under this formulation the ``loss augmented inference''
+used in structural SVMs\cite{tsochantaridis2005large} to remove
+the complexity cannot be performed due to the dependence of loss
+function $\Delta$ on hidden variables $\mathbf{h}^*_i(\theta)$.
+\citename{yu2009learning} argued that in real world applications
+hidden variables are usually intermediate results and are not
+required as an output\cite{yu2009learning}. Therefore, the loss
+function can only focus on the inferenced hidden variables
+$\mathbf{\hat{h}}_i(\theta)$ which leads to:
+
+$$
+\Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
+=
+\Delta(\mathbf{y}_i,\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta))
+$$
+
+Thus the upper bound used in standard structural
+SVMs\cite{tsochantaridis2005large} can be extended to:
+
+\begin{align}
+  \Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
+  &\leq \bigg(\max_{(\mathbf{\hat{y}} \times \mathbf{\hat{h}}) \in
+    \mathcal{Y} \times \mathcal{H}}
+    [\theta\cdot\Psi(\mathbf{x}_i,\mathbf{\hat{y}},\mathbf{\hat{h}}) +
+    \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{h}})]\bigg)\\
+  &-\max_{\mathbf{h} \in \mathcal{H}} \theta \cdot
+    \Psi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})
+\end{align}
+
+Hence the optimization problem for Structural SVMs with latent
+variables becomes
+
+\begin{align}
+\label{eq:latent_ssvm_object}
+  \min_\theta\bigg(\frac{1}{2}\|\theta\|^2+
+  C\sum_{i=1}^{n}\big(\max_{(\mathbf{\hat{y}} \times
+  \mathbf{\hat{h}}) \in \mathcal{Y} \times \mathcal{H}}
+  [\theta\cdot\Psi(\mathbf{x}_i,\mathbf{\hat{y}},\mathbf{\hat{h}}) +
+  \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{h}})]\big)\bigg)\\
+  -C\sum_{i=1}^{n}\big(\max_{\mathbf{h} \in \mathcal{H}} \theta \cdot
+  \Psi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})\big)\nonumber
+\end{align}
+
+\noindent which is a difference of two convex functions. Problem
+of this formulation can be solved using the Concave-Convex
+Procedure (CCCP)\cite{yuille2002concave} which is guaranteed to
+converge to a local minimum. \citename{yu2009learning} proposed a
+two stages algorithm. In the first step the latent variable
+$\bh_i^*$ which best explains training pair $(\bx_i, \by_i)$ is
+found by solving equation~\eqref{eq:latentssvm_latent_inf}. This
+step is also called the ``latent variable completion'' problem.
+In the second step $\bh_i^*$ is used as completely observed to
+substitute $\bh$ in equation~\eqref{eq:latent_ssvm_object}.
+Therefore, solving equation~\eqref{eq:latent_ssvm_object} is
+equivalent to solve the standard structural SVM problem.
+
+Auxiliary variables was introduced to help representing lower
+linear envelope potentials in an energy-minimization
+setting~\cite{Kohli:CVPR10}. In order to adapt the energy
+function to max margin framework, \citename{Gould:ICML2011}
+approximated the energy function using equally spaced
+break-points thus removed those auxiliary variables. In this
+thesis we try to optimize the energy function exactly by
+introducing auxiliary variables back into the feature vector and
+solving the learning problem using the latent structural SVM
+framework. We will present this in detail in
+section~\ref{sec:learning}.
+
+\input RelatedWorks/Background.tex
+
+
+\clearpage
+\cleardoublepage
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../thesis"
+%%% End:
+
