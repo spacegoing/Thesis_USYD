@@ -3,64 +3,51 @@
 %%
 \documentclass{StyFiles/usydthesis}
 \usepackage[palatino]{StyFiles/anuthesis}
-\usepackage{graphicx}
+\usepackage{StyFiles/my_macros}
+
+%% Contents
 \usepackage{makeidx}
-\usepackage{microtype}
-% \usepackage{StyFiles/doublespace}
 
-% Chuck Added
-\usepackage[toc,page]{appendix}
+%% Figures
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+%% Features
 \usepackage{StyFiles/fancyhdr}
-% Gould Configurations
+\usepackage{url}
+\usepackage{makecell}
+\usepackage{textcomp}
+\usepackage{booktabs}
+\usepackage{multirow}
 
-% For figures
-% \ifCLASSINFOpdf
-% \usepackage[pdftex]{graphicx}
-% \DeclareGraphicsExtensions{.jpg,.png}
-% \else
-% \usepackage[dvips]{graphicx}
-% \DeclareGraphicsExtensions{.eps}
-% \fi
+%% Formats
+\usepackage[toc,page]{appendix}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[font=footnotesize]{subfig}
+\usepackage{StyFiles/hyphenat}
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
 
-% For citations
-\usepackage[sort,numbers]{StyFiles/natbib}
-\renewcommand{\citename}{\citet}
-\renewcommand{\cite}{\citep}
-\usepackage{StyFiles/natbibspacing}
-
-% For maths
-\usepackage[cmex10]{amsmath}
-\usepackage{amssymb,amsthm}
-
-% For algorithms
+%% Algos
 \usepackage{StyFiles/algorithm}
 \usepackage{StyFiles/algorithmic}
 
-% For Hyperlinks
-\usepackage{hyperref}
-% fix problem between hyperref and algorithmic
-\newcommand{\theHalgorithm}{\arabic{algorithm}}
+%% For maths
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb,amsthm}
+\input{math_commands.tex}
 
-% For captions
-\usepackage[font=small,labelfont=bf]{caption}
-\usepackage[font=footnotesize]{subfig}
+%% Commands
+\newcommand{\mmqp}[3]{\textrm{\sc MaxMarginQP}\!\left(\{\by_t, #1\}_{t=1}^{T}, #2, #3\right)}
+\newcommand{\energy}[1]{\ensuremath{E\!\left(#1\right)}}
 
-% My macros
-\usepackage{StyFiles/sg-macros}
-
+%% Environments
 \newtheorem{thm}{Theorem}[section]
 \newtheorem{cor}[thm]{Corollary}
 \newtheorem{lem}[thm]{Lemma}
 \newtheorem{prop}[thm]{Proposition}
 \newtheorem{obs}[thm]{Observation}
 \newtheorem{defn}[thm]{Definition}
-
-\newcommand{\mmqp}[3]{\textrm{\sc MaxMarginQP}\!\left(\{\by_t, #1\}_{t=1}^{T}, #2, #3\right)}
-
-% correct bad hyphenation here
-\usepackage{StyFiles/hyphenat}
-\hyphenation{op-tical net-works semi-conduc-tor}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Preamble
@@ -69,6 +56,7 @@
 \makeindex
 \begin{document}
 
+\singlespacing
 \pagenumbering{roman}  % first use Roman numerals for page numbers
 % initial page numbers:  i, ii, iii, ...
 \renewcommand{\thepage}{\roman{page}}	
@@ -84,16 +72,11 @@
 \def\supervisor{Dacheng Tao}
 \def\assocsupervisora{Dongjin Song}
 %\def\sid{200342291}
-
 \maketitle
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Title page
-% \pagestyle{empty}
-% \thispagestyle{empty}
-% \include{FrontBackMISC/titlepage}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Here begin the preliminaries
+\onehalfspacing
 \include{FrontBackMISC/frontmatter}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -142,6 +125,8 @@
 \include{RelatedWorks/RelatedWorks}
 \include{Methodology/Methodology}
 \include{Experiments/Experiments}
+\include{Part2/mmpl}
+\include{Part2/mrf_lssvm_app}
 
 %% Conclusion
 \include{conclusion}
@@ -158,8 +143,7 @@
 % \end{doublepage}
 
 \bibliographystyle{abbrvnat}
-\bibliography{Bibs/thesis,Bibs/long,Bibs/scene}
-
+\bibliography{Bibs/thesis,Bibs/long,Bibs/scene,Bibs/proposal,Bibs/fin}
 \printindex
 
 \end{document}

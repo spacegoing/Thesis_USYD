@@ -7,8 +7,7 @@
 
 We summarize our work in this chapter. We will also conclude its
 advantages and disadvantages basing on our synthetic
-(section~\ref{sec:synth-check}) and real-world
-(section~\ref{sec:foregr-extr}) experiments' results. Our work
+(section~\ref{sec:synth-check}) experiment's results. Our work
 also provide some insights to our future work which we will
 briefly discuss in this chapter.
 
@@ -59,17 +58,6 @@ found that the shape learned by the new method can shift along
 with the changes of the input data which proves that we can learn
 the lower linear envelope exactly.
 
-We then take our algorithm to a harder real-world
-experiment~\ref{sec:foregr-extr}. It turns out that our new
-method has a slightly increasing in overall accuracy (0.6\%)
-compared to the previous method. There are much less holes in
-images inferred by our new method which certificates the lower
-linear envelope function learned by our formulation can better
-enforce higher order consistency in large cliques. However, the
-performance various significantly between cross-validation folds
-which indicates there are some generalization issues existing in
-our new method.
-
 At last we summarize the advantages and disadvantages as
 following.
 
@@ -94,16 +82,14 @@ Disadvantages of the new method:
 \end{itemize}
 
 
-
-
 \section{Future Work}
 \label{sec:futurework}
 
 As we suggested in the conclusion, our new method seems to have
-some generalization issues (figure~\ref{fig:grabcut_worst} for
-example). It will be our primal goal to keep investigating into
-this problem. We also proposed an empirical initialization method
-in section~\ref{sec:mrflssvm_learning_algo}. For future work we
+some generalization issues. It will be our primal goal to keep
+investigating into this problem. We also proposed an empirical
+initialization method in
+section~\ref{sec:mrflssvm_learning_algo}. For future work we
 would compare this method to others.
 
 Our research also provide insights to further directions.

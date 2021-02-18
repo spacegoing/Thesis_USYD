@@ -1,8 +1,7 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{usydthesis}
 \LoadClass[twoside,onecolumn,12pt,a4paper]{book}
-\usepackage{setspace}
-\doublespacing
+\usepackage[onehalfspacing]{setspace}
 
 % thesis title page
 % date on title page of thesis

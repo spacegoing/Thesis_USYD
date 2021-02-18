@@ -13,43 +13,43 @@
 log-probability distribution of arbitrary non-negative functions
 over a set of maximal cliques of the
 graph~\cite{bishop:2006:PRML}. Let $C$ denotes a maximal clique
-in one graph and $\by_C$ denotes the set of variables in that
+in one graph and $\vy_C$ denotes the set of variables in that
 clique. Then the joint distribution can be written as:
 \begin{align}
-  p(\by)=\frac{1}{Z}\prod_{C}{\Psi_C(\by_C)}
+  p(\vy)=\frac{1}{Z}\prod_{C}{\Psi_C(\vy_C)}
 \end{align}
 \noindent where $\Psi$ is called \emph{potential functions} which
 can be defined as any non-negative functions and
-$Z=\sum_{\by}\prod_{C}{\Psi_C(\by_C)}$ which is a normalization
+$Z=\sum_{\vy}\prod_{C}{\Psi_C(\vy_C)}$ which is a normalization
 constant. To infer labels which best explains input data set, we
 can find the \emph{maximum a posteriori} (MAP) labels by solving
-$\by^*=\argmax_{\by}p(\by)$. Because potential functions are
+$\vy^*=\argmax_{\vy}p(\vy)$. Because potential functions are
 restricted to be non-negative, it gives us more flexible
 representations by taking exponential of those terms. Thus the
 joint distribution becomes:
 \begin{align}
-  p(\by)=\frac{1}{Z}exp(-\sum_{C}{E_C(\by_C)})
+  p(\vy)=\frac{1}{Z}exp(-\sum_{C}{E_C(\vy_C)})
 \end{align}
 \noindent where $E$ is called \emph{energy functions} which can be
 arbitrary functions. Therefore, \emph{maximum a posteriori}
 problem is equivalent to \emph{energy minimization} problem,
 which is also known as \emph{inference}:
 \begin{align}
-  \by^*=\argmax_{\by}p(\by)=\argmin_{\by}(-\sum_{C}{E_C(\by_C)})
+  \vy^*=\argmax_{\vy}p(\vy)=\argmin_{\vy}(\sum_{C}{E_C(\vy_C)})
 \end{align}
 To optimize the performance we can also consider a weighted
 version of energy functions. In order to do this we can decompose
-energy functions over nodes $\N$, edges $\E$ and higher order
-cliques $\C$~\cite{Szummer:ECCV08} then add weights on them
-accordingly. Let $\bw$ be the vector of parameters and $\phi$ be
+energy functions over nodes $\gN$, edges $\gE$ and higher order
+cliques $\gC$~\cite{Szummer:ECCV08} then add weights on them
+accordingly. Let $\vw$ be the vector of parameters and $\phi$ be
 arbitrary feature function, then the energy can be decomposed as
 a set linear combinations of weights and feature vectors:
 
 \begin{align}
   \label{eq:energyfunction_UPH}
-  E(\by;\bw)=\sum_{i\in \N}{\bw_i^U\phi^U(\by_i)}+
-  \sum_{(i,j)\in \E}{\bw_{ij}^P\phi^P(\by_i,\by_j)}+
-  \sum_{\by_C\in \C}{\bw_C^H\phi^H(\by_C)}
+  E(\vy;\vw)=\sum_{i\in \gN}{\vw_i^U\phi^U(\vy_i)}+
+  \sum_{(i,j)\in \gE}{\vw_{ij}^P\phi^P(\vy_i,\vy_j)}+
+  \sum_{\vy_C\in \gC}{\vw_C^H\phi^H(\vy_C)}
 \end{align}
 
 \noindent where $U$ denotes \emph{unary} terms, $P$ denotes
@@ -57,24 +57,24 @@ a set linear combinations of weights and feature vectors:
 (when $|C|>2$ namely each clique contains more than two
 variables).
 
-A weight vector $\bw$ is more preferable if it gives the
-ground-truth assignments $\by_t$ less than or equal to energy
+A weight vector $\vw$ is more preferable if it gives the
+ground-truth assignments $\vy_t$ less than or equal to energy
 value than any other assignments $y$:
 
 \begin{align}
 E(y_t,w)\leq E(y,w)~ \text{,~}\forall y \neq y_t
-\text{,~} y\in \Y
+\text{,~} y\in \sY
 \end{align}
 
 
 Thus the goal of \emph{learning} MRFs is to learn the parameter
-vector $\bw^*$ which returns the lowest energy value for the
+vector $\vw^*$ which returns the lowest energy value for the
 ground-truth labels $y_t$ relative to any other assignments
 $y$~\cite{Szummer:ECCV08}:
 
 \begin{align}
-\bw^* = argmax_{\bw}(E(y_t,w)-E(y,w))~ \text{,~}\forall y \neq y_t
-\text{,~} y\in \Y
+\vw^* = argmax_{\vw}(E(y_t,w)-E(y,w))~ \text{,~}\forall y \neq y_t
+\text{,~} y\in \sY
 \end{align}
 
 We have introduced three main research topics of MRFs:
@@ -136,74 +136,74 @@ section~\ref{sec:learning} we will show how this framework can be
 adapted to learn parameters for higher order energy function with
 latent variables.
 
-Given an a linear combination of features vector $\phi(\bx ,\by)
-\in \reals^m$ and weights $\btheta \in \reals^m$, and a set of
-$n$ training examples $\{\by_i\}_{i=1}^n$ max-margin framework
-can be used to solve optimized solution $\btheta^*$. To include
+Given an a linear combination of features vector $\phi(\vx ,\vy)
+\in \sR^m$ and weights $\vtheta \in \sR^m$, and a set of
+$n$ training examples $\{\vy_i\}_{i=1}^n$ max-margin framework
+can be used to solve optimized solution $\vtheta^*$. To include
 unobserved information in the model, Yu\cite{yu2009learning}
 extended the joint feature function\cite{tsochantaridis2005large}
-$\phi(\mathbf{x},\mathbf{y}) $ with a latent variable
-$\mathbf{h}\in \mathcal{H}$ to
-$\phi(\mathbf{x},\mathbf{y},\mathbf{h}) $. So the inference
+$\phi(\vx,\vy) $ with a latent variable
+$\vh\in \mathcal{H}$ to
+$\phi(\vx,\vy,\vh) $. So the inference
 problem becomes
 \begin{align}
   \label{eq:latent_ssvm_linearcomb}
-  f_\theta(x) = \argmax_{(\mathbf{y} \times \mathbf{h}) \in \mathcal{Y}
-  \times \mathcal{H}} \theta\cdot\phi(\mathbf{x},\mathbf{y},\mathbf{h})
+  f_\theta(x) = \argmax_{(\vy \times \vh) \in \sY
+  \times \sH} \vtheta\cdot\phi(\vx,\vy,\vh)
 \end{align}
 
 Accordingly, the loss function can be extended as
 
 $$
-\Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
+\Delta((\vy_i,\vh^*_i(\theta)),(\hat{\vy}_i(\vtheta),\hat{\vh}_i(\vtheta)))
 $$
 
 \noindent where
 
 \begin{align}
   \label{eq:latentssvm_full_inf}
- (\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta))=\argmax_{(\mathbf{y}
-  \times \mathbf{h}) \in \mathcal{Y} \times \mathcal{H}}
-\theta\cdot\phi(\mathbf{x}_i,\mathbf{y_i},\mathbf{h})
+ (\hat{\vy}_i(\vtheta),\hat{\vh}_i(\vtheta))=\argmax_{(\vy
+  \times \vh) \in \mathcal{Y} \times \mathcal{H}}
+\theta\cdot\phi(\vx_i,\vy,\vh)
 \end{align}
 
 \begin{align}
   \label{eq:latentssvm_latent_inf}
-  \mathbf{h}^*_i(\theta) = \argmax_{\mathbf{h} \in \mathcal{H}} \theta \cdot
-  \phi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})
+  \vh^*_i(\theta) = \argmax_{\vh \in \mathcal{H}} \theta \cdot
+  \phi(\vx_i,\vy_i,\vh)
 \end{align}
 
 The loss function under this formulation measures difference
-between the inferred result pair $(\mathbf{\hat{y}}_i(\theta),
-\mathbf{\hat{h}}_i(\theta))$ and the pair $(\mathbf{y}_i(\theta),
-\mathbf{h}_i^*(\theta))$ which best explains the training data.
+between the inferred result pair $(\hat{\vy}_i(\theta),
+\hat{\vh}_i(\theta))$ and the pair $(\vy_i(\theta),
+\vh_i^*(\theta))$ which best explains the training data.
 However, under this formulation the ``loss augmented inference''
 used in structural SVMs\cite{tsochantaridis2005large} to remove
 the complexity cannot be performed due to the dependence of loss
-function $\Delta$ on hidden variables $\mathbf{h}^*_i(\theta)$.
+function $\Delta$ on hidden variables $\vh^*_i(\theta)$.
 \citename{yu2009learning} argued that in real world applications
 hidden variables are usually intermediate results and are not
 required as an output\cite{yu2009learning}. Therefore, the loss
 function can only focus on the inferenced hidden variables
-$\mathbf{\hat{h}}_i(\theta)$ which leads to:
+$\hat{\vh}_i(\theta)$ which leads to:
 
 $$
-\Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
+\Delta((\vy_i,\vh^*_i(\theta)),(\hat{\vy}_i(\theta),\hat{\vh}_i(\theta)))
 =
-\Delta(\mathbf{y}_i,\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta))
+\Delta(\vy_i,\hat{\vy}_i(\theta),\hat{\vh}_i(\theta))
 $$
 
 Thus the upper bound used in standard structural
 SVMs\cite{tsochantaridis2005large} can be extended to:
 
 \begin{align}
-  \Delta((\mathbf{y}_i,\mathbf{h}^*_i(\theta)),(\mathbf{\hat{y}}_i(\theta),\mathbf{\hat{h}}_i(\theta)))
-  &\leq \bigg(\max_{(\mathbf{\hat{y}} \times \mathbf{\hat{h}}) \in
+  \Delta((\vy_i,\vh^*_i(\theta)),(\hat{\vy}_i(\theta),\hat{\vh}_i(\theta)))
+  &\leq \bigg(\max_{(\hat{\vy} \times \hat{\vh}) \in
     \mathcal{Y} \times \mathcal{H}}
-    [\theta\cdot\Psi(\mathbf{x}_i,\mathbf{\hat{y}},\mathbf{\hat{h}}) +
-    \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{h}})]\bigg)\\
-  &-\max_{\mathbf{h} \in \mathcal{H}} \theta \cdot
-    \Psi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})
+    [\theta\cdot\Psi(\vx_i,\hat{\vy},\hat{\vh}) +
+    \Delta(\vy_i,\hat{\vy},\hat{\vh})]\bigg)\\
+  &-\max_{\vh \in \mathcal{H}} \theta \cdot
+    \Psi(\vx_i,\vy_i,\vh)
 \end{align}
 
 Hence the optimization problem for Structural SVMs with latent
@@ -212,12 +212,12 @@ variables becomes
 \begin{align}
 \label{eq:latent_ssvm_object}
   \min_\theta\bigg(\frac{1}{2}\|\theta\|^2+
-  C\sum_{i=1}^{n}\big(\max_{(\mathbf{\hat{y}} \times
-  \mathbf{\hat{h}}) \in \mathcal{Y} \times \mathcal{H}}
-  [\theta\cdot\Psi(\mathbf{x}_i,\mathbf{\hat{y}},\mathbf{\hat{h}}) +
-  \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{h}})]\big)\bigg)\\
-  -C\sum_{i=1}^{n}\big(\max_{\mathbf{h} \in \mathcal{H}} \theta \cdot
-  \Psi(\mathbf{x}_i,\mathbf{y}_i,\mathbf{h})\big)\nonumber
+  C\sum_{i=1}^{n}\big(\max_{(\hat{\vy} \times
+  \hat{\vh}) \in \mathcal{Y} \times \mathcal{H}}
+  [\theta\cdot\Psi(\vx_i,\hat{\vy},\hat{\vh}) +
+  \Delta(\vy_i,\hat{\vy},\hat{\vh})]\big)\bigg)\\
+  -C\sum_{i=1}^{n}\big(\max_{\vh \in \mathcal{H}} \theta \cdot
+  \Psi(\vx_i,\vy_i,\vh)\big)\nonumber
 \end{align}
 
 \noindent which is a difference of two convex functions. Problem
@@ -225,11 +225,11 @@ of this formulation can be solved using the Concave-Convex
 Procedure (CCCP)\cite{yuille2002concave} which is guaranteed to
 converge to a local minimum. \citename{yu2009learning} proposed a
 two stages algorithm. In the first step the latent variable
-$\bh_i^*$ which best explains training pair $(\bx_i, \by_i)$ is
+$\vh_i^*$ which best explains training pair $(\vx_i, \vy_i)$ is
 found by solving equation~\eqref{eq:latentssvm_latent_inf}. This
 step is also called the ``latent variable completion'' problem.
-In the second step $\bh_i^*$ is used as completely observed to
-substitute $\bh$ in equation~\eqref{eq:latent_ssvm_object}.
+In the second step $\vh_i^*$ is used as completely observed to
+substitute $\vh$ in equation~\eqref{eq:latent_ssvm_object}.
 Therefore, solving equation~\eqref{eq:latent_ssvm_object} is
 equivalent to solve the standard structural SVM problem.
 
@@ -244,8 +244,6 @@ introducing auxiliary variables back into the feature vector and
 solving the learning problem using the latent structural SVM
 framework. We will present this in detail in
 section~\ref{sec:learning}.
-
-\input RelatedWorks/Background.tex
 
 
 \clearpage

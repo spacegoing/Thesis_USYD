@@ -28,20 +28,20 @@ extensively in Markov Random Fields area for encouraging
 consistency over large
 cliques~\cite{Kohli:CVPR07,Nowozin:2011,Gould:ICML2011}.
 
-Let $\C$ denotes the set of all maximal cliques in an image and
-$\by_c=\{y_i |\text{\,for\,} i \in c\}$ denotes set of random
+Let $\gC$ denotes the set of all maximal cliques in an image and
+$\vy_c=\{y_i |\text{\,for\,} i \in c\}$ denotes set of random
 variables in the clique $c$, a weighted lower linear envelope
-potential~\cite{gouldlearning} over $\by_c$ is defined as the
+potential~\cite{gouldlearning} over $\vy_c$ is defined as the
 minimum over a set of $K$ linear functions as:
 %
 \begin{align}
-  \psi^H_c\!(\by_c) \, &= \min_{k=1, \ldots, K} \left\{ a_k W_{\!c}(\by_c) + b_k \right\}.
+  \psi^H_c\!(\vy_c) \, &= \min_{k=1, \ldots, K} \left\{ a_k W_{\!c}(\vy_c) + b_k \right\}.
   \label{eqn:potential2}
 \end{align}
 %
-where $W_{\!c}(\by_c) = \sum_{i \in c} w_i y_i$ with $w^c_i \geq
+where $W_{\!c}(\vy_c) = \sum_{i \in c} w_i y_i$ with $w^c_i \geq
 0$ and $\sum_{i \in c} w^c_i = 1$ which are weights for each
-clique. $(a_k, b_k) \in \reals^2$ are the linear function
+clique. $(a_k, b_k) \in \sR^2$ are the linear function
 parameters. We illustrate an example~\cite{gouldlearning} with
 three linear functions in \figref{fig:nonredundant}.
 %
@@ -49,9 +49,9 @@ three linear functions in \figref{fig:nonredundant}.
   \centering
   \includegraphics[width=0.6\columnwidth]{Methodology/figures/not_redundant}
   \caption{\label{fig:nonredundant} Example lower linear envelope
-    $\psi^H_c\!(\by_c)$ (shown solid) with three terms (dashed).
-    When $W_{\!c}(\by_c) \leq W_1$ the first linear function is
-    active, when $W_1 < W_{\!c}(\by_c) \leq W_2$ the second
+    $\psi^H_c\!(\vy_c)$ (shown solid) with three terms (dashed).
+    When $W_{\!c}(\vy_c) \leq W_1$ the first linear function is
+    active, when $W_1 < W_{\!c}(\vy_c) \leq W_2$ the second
     linear function is active, otherwise the third linear
     function is active.}
 \end{figure}
@@ -61,7 +61,7 @@ the same as the standard equation~\eqref{eq:energyfunction_UPH}
 and is given by:
 \begin{align}
   \label{eq:min_energy}
-  \by^* = \argmin\energy{\by}
+  \vy^* = \argmin\energy{\vy}
 \end{align}
 
 \begin{figure}[ht]
@@ -90,7 +90,7 @@ the following two inequalities hold
 %
 The $k$-th linear function is said to be \emph{redundant}
 (\emph{Definition 3.2}~\cite{gouldlearning}) if it is not active
-for any assignment to $\by_c$ in any clique $c \in \C$ or is only
+for any assignment to $\vy_c$ in any clique $c \in \gC$ or is only
 active whenever another linear function is also active.
 Figure \ref{fig:redundant} depicts such conditions. As a
 result, removing redundant functions from the potential does not
@@ -115,15 +115,15 @@ not redundant if the following condition is satisfied:
 %
 Another important property of equation~\eqref{eq:min_energy} is
 shift invariant~\cite{gouldlearning} (vertically). We write
-$\widetilde{\psi}^{H}_c\!(\by_c)$ by shift equation~\eqref{eqn:potential2} vertically
+$\widetilde{\psi}^{H}_c\!(\vy_c)$ by shift equation~\eqref{eqn:potential2} vertically
 with an abitrary amount $b^{const}\in R$
-$$\widetilde{\psi}^{H}_c\!(\by_c) = \min_{k=1, \ldots, K}
-\left\{a_k W_{\!c}(\by_c) + b_k + b^\textrm{const} \right\}$$
+$$\widetilde{\psi}^{H}_c\!(\vy_c) = \min_{k=1, \ldots, K}
+\left\{a_k W_{\!c}(\vy_c) + b_k + b^\textrm{const} \right\}$$
 %
 Then we have
 \begin{align}
-  \argmin_{\by_c} \psi^H_c\!(\by_c)
-  = \argmin_{\by_c} \widetilde{\psi}^{H}_c\!(\by_c).
+  \argmin_{\vy_c} \psi^H_c\!(\vy_c)
+  = \argmin_{\vy_c} \widetilde{\psi}^{H}_c\!(\vy_c).
   \label{eq:shift_invariant}
 \end{align}
 %
@@ -152,21 +152,21 @@ Following the approach of \citename{Kohli:CVPR10},
 \citename{Gould:ICML2011,gouldlearning} transformed the weighted
 lower linear envelope potential~\eqref{eqn:potential2} into a
 quadratic pseudo-Boolean function by introducing $K-1$ auxiliary
-variables $\bz = \left(z_1, \ldots, z_{K-1}\right)$ with $z_k\in
+variables $\vz = \left(z_1, \ldots, z_{K-1}\right)$ with $z_k\in
 \{0,1\}$:
 
 \begin{align}
-  E^c(\by_c, \bz) = a_1 W_{\!c}(\by_c) + b_1
-  {}+ \sum_{k = 1}^{K-1} z_k \left( \left(a_{k+1} - a_k\right) W_{\!c}(\by_c) + b_{k+1} - b_k \right)
+  E^c(\vy_c, \vz) = a_1 W_{\!c}(\vy_c) + b_1
+  {}+ \sum_{k = 1}^{K-1} z_k \left( \left(a_{k+1} - a_k\right) W_{\!c}(\vy_c) + b_{k+1} - b_k \right)
   \label{eqn:binary_concave_z}
 \end{align}
 
-\noindent for a single clique $c \in \C$. Under this formulation,
+\noindent for a single clique $c \in \gC$. Under this formulation,
 \citename{Gould:ICML2011,gouldlearning} showed that minimizing
-the pseudo-Boolean function over $\bz$ is equivalent to selecting
+the pseudo-Boolean function over $\vz$ is equivalent to selecting
 (one of) the active functions(s) from
 equation~\eqref{eqn:potential2}. Another important property of
-optimized $\bz$ under this formulation is that it
+optimized $\vz$ under this formulation is that it
 automatically satisfies the constraint~\cite{gouldlearning}: 
 
 \begin{figure}[t]
@@ -182,8 +182,8 @@ automatically satisfies the constraint~\cite{gouldlearning}:
     equation~\eqref{eqn:posiform}, unary and pairwise terms.
     Every cut corresponds to an assignment to the random
     variables, where variables associated with nodes in the
-    ${\cal S}$ set take the value one, and those associated with
-    nodes in the $\T$ set take the value zero. With slight abuse
+    ${\gS}$ set take the value one, and those associated with
+    nodes in the $\gT$ set take the value zero. With slight abuse
     of notation, we use the variables to denote nodes in our
     graph.}
 \end{figure}
@@ -205,7 +205,7 @@ equation~\eqref{eqn:binary_concave_z} into
 
 \begin{align}
   \label{eqn:posiform}  
-  E^c(\by_c, \bz)
+  E^c(\vy_c, \vz)
   &= b_1 - (a_1 - a_K) + \sum_{i \in c} a_1 w^c_i y_i
   {}+ \sum_{k = 1}^{K - 1} \left( b_{k+1} - b_k \right) z_k\\
   &+ \sum_{k = 1}^{K - 1} \left( a_k - a_{k+1} \right) \bar{z}_k
@@ -275,7 +275,7 @@ let $b_1=0$. Now we can reparameterize the energy function
 as
 \begin{align}
   \label{eq:llsvm_innerprod_energy}
-  E^c(\by_c,\bz; \btheta) = \btheta^T \! \phi(\by_c,\bz)
+  E^c(\vy_c,\vz; \vtheta) = \vtheta^T \! \phi(\vy_c,\vz)
 \end{align}
 
 \noindent where:
@@ -295,9 +295,9 @@ as
 \label{eq:llsvm_feature}
   \phi_k = \left\{
 		\begin{aligned}
-      & W_c(\by_c) 	& \text{for} \ k=1\\
-      & W_c(\by_c)\bz_k & \text{for}\ 1<k\le K\\
-      & \bz_k & \text{for} \ K<k\le2K-1\\
+      & W_c(\vy_c) 	& \text{for} \ k=1\\
+      & W_c(\vy_c)\vz_k & \text{for}\ 1<k\le K\\
+      & \vz_k & \text{for} \ K<k\le2K-1\\
 		\end{aligned}
   \right.
 \end{equation}
@@ -309,28 +309,28 @@ section~\ref{sec:latent-struct-svms} can be written as:
 
 \begin{align}
   \label{eq:linenv_full_inf}
-  (\mathbf{\hat{y}}_k(\btheta),\mathbf{\hat{z}}_k(\theta))=\argmin_{(\mathbf{y}
+  (\hat{\vy}_k(\vtheta),\hat{\vz}_k(\theta))=\argmin_{(\mathbf{y}
   \times \mathbf{z}) \in \mathcal{Y} \times \mathcal{Z}}
-  \btheta^T\cdot\phi(\mathbf{y}_k,\mathbf{z}_k)
+  \vtheta^T\cdot\phi(\mathbf{y}_k,\mathbf{z}_k)
 \end{align}
 and
 \begin{align}
   \label{eq:linenv_latent_inf}
-  \mathbf{z}^*_k(\btheta) = \argmin_{\mathbf{z} \in \mathcal{Z}}
-  \btheta^T \cdot \phi(\mathbf{y}_k,\mathbf{z}_k)
+  \mathbf{z}^*_k(\vtheta) = \argmin_{\mathbf{z} \in \mathcal{Z}}
+  \vtheta^T \cdot \phi(\mathbf{y}_k,\mathbf{z}_k)
 \end{align}
 
 There are 2 facts worth to mention. The first fact is
 that in our previous construction of minimum-$st$-cut graph the
-latent variable $\bz$ is already included. Therefore, we can
+latent variable $\vz$ is already included. Therefore, we can
 apply our inference algorithm directly on our 2 new formulations.
 
 However, for equation~\eqref{eq:linenv_latent_inf} there exists
 more efficient algorithm. At training stage the ground-truth
 labels $y_i$ is a function input thus completely observed.
-Therefore, the term $((a_{k+1}-a_k)W_c(\by_c)+b_{k+1}-b_k)$ in
+Therefore, the term $((a_{k+1}-a_k)W_c(\vy_c)+b_{k+1}-b_k)$ in
 equation~\ref{eq:originalenergy} becomes constant. So we can
-infer latent variable $\bz$ explicitly by:
+infer latent variable $\vz$ explicitly by:
 \begin{align}
   \label{eq:linenv_effi_infer_latent}
   z_k^c &=
@@ -344,9 +344,9 @@ infer latent variable $\bz$ explicitly by:
   \centering
   \includegraphics[width=0.8\columnwidth]{Methodology/figures/linEnvLatentFig.png}
   \caption{\label{fig:concave} Example piecewise-linear concave
-    function of $W_{\!c}(\by_c) = \sum_{i \in c} w^c_i y_i$.
+    function of $W_{\!c}(\vy_c) = \sum_{i \in c} w^c_i y_i$.
     Assume the second linear function is active namely
-    $\bz^c=(1,1,0,0)$. The result of linear combination of
+    $\vz^c=(1,1,0,0)$. The result of linear combination of
     parameter vector and feature vector is same as quadratic
     psuedo-Boolean function.}
 \end{figure}
@@ -355,11 +355,11 @@ To show the equivalence between
 equation~\eqref{eqn:binary_concave_z} and
 equation~\eqref{eq:llsvm_innerprod_energy} we consider the
 example illustrated in figure~\ref{fig:concave}. Assume the
-inferred latent vector $\bz^c=(1,1,0,0)$. Plug it into
+inferred latent vector $\vz^c=(1,1,0,0)$. Plug it into
 equation~\eqref{eq:llsvm_feature} the energy function can be
 written as:
 \begin{align*}
-  E^c(\by_c,\bz; \btheta) &=
+  E^c(\vy_c,\vz; \vtheta) &=
   \begin{bmatrix}
     a_1\\
     a_2-a_1\\
@@ -370,26 +370,26 @@ written as:
     b_4-b_3
   \end{bmatrix}^T
   \begin{bmatrix}
-    W_c(\by_c) \\
-    W_c(\by_c) \\
+    W_c(\vy_c) \\
+    W_c(\vy_c) \\
     0\\
     0\\
     1\\
     0\\
     0
   \end{bmatrix}\\
-  &=a_1W_c(\by_c)+(a_2-a_1)W_c(\by_c)+b_2\\
-  &=a_2W_c(\by_c)+b_2
+  &=a_1W_c(\vy_c)+(a_2-a_1)W_c(\vy_c)+b_2\\
+  &=a_2W_c(\vy_c)+b_2
 \end{align*}
 
 Therefore, assignments inferred by graph-cut algorithm can be
 directly encoded into a linear combination by using our latent
 structural SVM formulation for learning purpose. The remaining
-task is to ensure the concavity of $\btheta$. We do this by
+task is to ensure the concavity of $\vtheta$. We do this by
 adding the following constraint:
 
 \begin{align}
-  A\btheta\geq0 \text{,\;~~~} A=
+  A\vtheta\geq0 \text{,\;~~~} A=
                   \begin{bmatrix}
                     1 & \mathbf{0} & \mathbf{0}\\
                     \mathbf{0} & -\mathbf{1} & \mathbf{0}\\
@@ -406,7 +406,7 @@ add small slack variables $\epsilon$ on those constraints:
 
 \begin{align}
   \label{eq:concave_constraint}
-  A\btheta\geq\epsilon \text{,\;~~~} A=
+  A\vtheta\geq\epsilon \text{,\;~~~} A=
                   \begin{bmatrix}
                     1 & \mathbf{0} & \mathbf{0}\\
                     \mathbf{0} & -\mathbf{1} & \mathbf{0}\\
@@ -428,7 +428,7 @@ order function together with unary and pairwise functions) can be
 written as:
 \begin{equation}
   E_{all}(y,z) = \begin{bmatrix}
-    \btheta^H\\
+    \vtheta^H\\
     \theta^{unary}\\
     \theta^{pairwise}
   \end{bmatrix}^T 
@@ -438,7 +438,7 @@ written as:
     \phi^{pairwise}
   \end{bmatrix}=\theta_{all}^T\cdot\phi_{all}
 \end{equation}
-where $\btheta^H\in \real$ is the parameter vector in higher
+where $\vtheta^H\in \sR$ is the parameter vector in higher
 order equation~\eqref{eq:llsvm_innerprod_energy} of size $2K-1$.
 $\theta^{unary}$ and $\theta^{pairwise}$ are both scalars.
 $\phi^\textrm{unary} = \sum_i \psi^U_i\!(y_i)$ and
@@ -454,10 +454,10 @@ two convex functions:
 \begin{align}
 \label{eq:lssvm_object}
   \min_\theta\bigg(\frac{1}{2}\|\theta\|^2+
-  C\sum_{i=1}^{n}\big(\max_{(\mathbf{\hat{y}} \times
-  \mathbf{\hat{z}}) \in \mathcal{Y} \times \mathcal{Z}}
-  [\theta\cdot\phi(\mathbf{\hat{y}},\mathbf{\hat{z}}) +
-  \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{z}})]\big)\bigg)\\
+  C\sum_{i=1}^{n}\big(\max_{(\hat{\vy} \times
+  \hat{\vz}) \in \mathcal{Y} \times \mathcal{Z}}
+  [\theta\cdot\phi(\hat{\vy},\hat{\vz}) +
+  \Delta(\mathbf{y}_i,\hat{\vy},\hat{\vz})]\big)\bigg)\\
   -C\sum_{i=1}^{n}\big(\max_{\mathbf{z} \in \mathcal{Z}} \theta \cdot
   \phi(\mathbf{y}_i,\mathbf{z})\big)\nonumber
 \end{align}
@@ -465,29 +465,29 @@ two convex functions:
 As mentioned by \citename{yu2009learning} the Concave-Convex
 Procedure (CCCP)~\cite{yuille2002concave} can be used to solve the
 optimization problem. Our algorithm contains two stages. We first
-imputes the latent variables $\bz$ explicitly by
+imputes the latent variables $\vz$ explicitly by
 equation~\eqref{eq:linenv_latent_inf}. Namely solving the
 ``latent variable completion'' problem~\cite{yu2009learning}:
 
 \begin{align}
-  \bz_i^*=\argmax_{\mathbf{z} \in \mathcal{Z}} \theta \cdot
+  \vz_i^*=\argmax_{\mathbf{z} \in \mathcal{Z}} \theta \cdot
   \phi(\mathbf{y}_i,\mathbf{z})
 \end{align}
 
 The inference result $z_i^*$ for $i=1,\dots,n$ is used as
 completely observed for later stage. With the latent variable
 $z_i^*$ which best explains the ground-truth data $y_i$ in hand,
-updating the parameter vector $\btheta$ is similar to solve the
+updating the parameter vector $\vtheta$ is similar to solve the
 standard max-margin optimization problem described
 in~\cite{gouldlearning}:
 
 \begin{align}
 \label{eq:mrflssvm_object}
   \min_\theta\bigg(\frac{1}{2}\|\theta\|^2+
-  C\sum_{i=1}^{n}\big(\max_{(\mathbf{\hat{y}} \times
-  \mathbf{\hat{z}}) \in \mathcal{Y} \times \mathcal{Z}}
-  [\theta\cdot\phi(\mathbf{\hat{y}},\mathbf{\hat{z}}) +
-  \Delta(\mathbf{y}_i,\mathbf{\hat{y}},\mathbf{\hat{z}})]\big)\bigg)\\
+  C\sum_{i=1}^{n}\big(\max_{(\hat{\vy} \times
+  \hat{\vz}) \in \mathcal{Y} \times \mathcal{Z}}
+  [\theta\cdot\phi(\hat{\vy},\hat{\vz}) +
+  \Delta(\mathbf{y}_i,\hat{\vy},\hat{\vz})]\big)\bigg)\\
   -C\sum_{i=1}^{n}\big(\theta \cdot
   \phi(\mathbf{y}_i,\mathbf{z}_i^*)\big) \nonumber
 \end{align}
@@ -496,18 +496,18 @@ The last problem remaining is the initialization method. Because
 our objective function~\eqref{eq:mrflssvm_object} is not convex
 and the CCCP algorithm is only guaranteed to converge to a local
 minimum or saddle point\cite{yuille2002concave}, initialization
-of $\btheta$ might affect the performance of our algorithm. Since
+of $\vtheta$ might affect the performance of our algorithm. Since
 there are no theoretical solution for this problem, we only
 propose an empirical \algref{alg:init_theta}:
 
 \begin{algorithm}[ht]
   \begin{algorithmic}[1]
-    \STATE{$gap=\frac{1}{K}$, $a_1=\U(0,1e6)$, $b_1=0$,
+    \STATE{$gap=\frac{1}{K}$, $a_1=\sU(0,1e6)$, $b_1=0$,
       $sp_1=(0,0)$, $w_0=0$, $counter=2$} \FOR{each
-      clique $c\in \C$} \STATE{Compute weighted clique value
+      clique $c\in \gC$} \STATE{Compute weighted clique value
       $w_c=W_c(y_C)$} \IF{$w_c-w_{c-1}>gap$}
     \STATE{$upbound = a_{counter}w_c+b_{counter}$\\
-      $sp_{counter}=(w_c,\U(upbound-0.5,upbound))$\\
+      $sp_{counter}=(w_c,\sU(upbound-0.5,upbound))$\\
       Calculate $a_{counter}$ and $b_{counter}$ using
       $sp_{counter-1}$ and $sp_{counter}$\\
       $counter=counter+1$}
@@ -515,22 +515,22 @@ propose an empirical \algref{alg:init_theta}:
     \ENDFOR
     \STATE{If $counter<K$, remaining $a$s and $b$s are all set to
       be $a_{counter}$ and $b_{counter}$} \STATE{Calculate
-      $\btheta$ using $\{a_k,b_k\}_{k=1}^K$}
+      $\vtheta$ using $\{a_k,b_k\}_{k=1}^K$}
   \end{algorithmic}
   \caption{\label{alg:init_theta} Empirical initialization
-    algorithm for $\btheta$}
+    algorithm for $\vtheta$}
 \end{algorithm}
 
 We assume that the more evenly distributed of $W_c(Y_c)$ where
-$c\in\C$ on $x$ axis, the more rich representation (number of
+$c\in\gC$ on $x$ axis, the more rich representation (number of
 linear functions) the energy function should have. In order to
-initialize $\btheta$, we first determine the x-coordinate of
+initialize $\vtheta$, we first determine the x-coordinate of
 sampled points $sp$. Then we sample its y-coordinate from a
-uniform distribution $\U(upbound,upbound-0.5)$ to add some
+uniform distribution $\sU(upbound,upbound-0.5)$ to add some
 randomness in our initialization as well as maintain concavity.
 Linear parameters $a_k$ and $b_k$ are later calculated using
 those sampled points $sp_k$ and $sp_{k-1}$. At last we encode
-$\{a_k,b_k\}_{k=1}^K$ into $\btheta$ using
+$\{a_k,b_k\}_{k=1}^K$ into $\vtheta$ using
 equation~\eqref{eq:llsvm_param}.
 
 Our optimization algorithm is summarized in
@@ -539,40 +539,40 @@ Our optimization algorithm is summarized in
 \begin{algorithm}[hb]
   \begin{algorithmic}[1]
     \STATE{Set $MaxIter = 100$}
-    \STATE{ {\bf input} training set $\{\by_i\}_{i=1}^{n}$, regularization constant $C > 0$,
+    \STATE{ {\bf input} training set $\{\vy_i\}_{i=1}^{n}$, regularization constant $C > 0$,
       and tolerance $\epsilon \geq 0$}
-    \STATE{Initialize $\btheta$ using \algref{alg:init_theta}}
+    \STATE{Initialize $\vtheta$ using \algref{alg:init_theta}}
     \REPEAT
     \STATE{Set $iter = 0$}
     \FOR{each training example, $i = 1, \ldots, n$}
-    \STATE{compute $ \bz_i^*=\argmax_{\mathbf{z} \in \mathcal{Z}}
+    \STATE{compute $ \vz_i^*=\argmax_{\mathbf{z} \in \mathcal{Z}}
       \theta \cdot \phi(\mathbf{y}_i,\mathbf{z}) $}
     \ENDFOR
 
-    \STATE{ {\bf initialize} active constraints set $\C_i = \{ \}$ for all $i$}
+    \STATE{ {\bf initialize} active constraints set $\gC_i = \{ \}$ for all $i$}
     \REPEAT
 
     \STATE{solve the quadratic programming problem in
       equation~\ref{eq:mrflssvm_object} with respect to active
-      constraints set $\C_i$ for all $i$ and concavity constraints
-      $A\btheta\geq \epsilon$ to get
-      $\hat{\btheta}$ and $\hat{\bxi}$}
+      constraints set $\gC_i$ for all $i$ and concavity constraints
+      $A\vtheta\geq \epsilon$ to get
+      $\hat{\vtheta}$ and $\hat{\vx_i}$}
 
     \FOR{each training example, $i = 1, \ldots, n$}
-    \STATE{compute $\hat{\by_i},\hat{\bz_i} = \argmin_{\by}
-      E(\by,\bz; \hat{\btheta}) - \Delta(\by, \bz, \by_i)$}
-    \IF{$\hat{\xi}_i + \epsilon \!<\! \Delta(\hat{\by_i},
-      \hat{\bz_i}, \by_i) -
-      E(\hat{\by_i},\hat{\bz_i}; \hat{\btheta}) + E(\by_i, \bz_i^*; \hat{\btheta})$}
-    \STATE{$\C_i \leftarrow \C_i \cup \{\by_i^\star\}$}
+    \STATE{compute $\hat{\vy_i},\hat{\vz_i} = \argmin_{\vy}
+      E(\vy,\vz; \hat{\vtheta}) - \Delta(\vy, \vz, \vy_i)$}
+    \IF{$\hat{\xi}_i + \epsilon \!<\! \Delta(\hat{\vy_i},
+      \hat{\vz_i}, \vy_i) -
+      E(\hat{\vy_i},\hat{\vz_i}; \hat{\vtheta}) + E(\vy_i, \vz_i^*; \hat{\vtheta})$}
+    \STATE{$\gC_i \leftarrow \gC_i \cup \{\vy_i^\star\}$}
     \ENDIF
     \ENDFOR
     \UNTIL{no more violated constraints}
-    \STATE{ {\bf return} parameters $\hat{\btheta}$}
+    \STATE{ {\bf return} parameters $\hat{\vtheta}$}
     \STATE{Set $iter = iter+1$}
 
     \UNTIL{$iter\geq MaxIter$}
-    \STATE{ {\bf return} parameters $\hat{\btheta}$}
+    \STATE{ {\bf return} parameters $\hat{\vtheta}$}
   \end{algorithmic}
   \caption{\label{alg:learning} Learning lower linear envelope
     MRFs with latent variables.}
