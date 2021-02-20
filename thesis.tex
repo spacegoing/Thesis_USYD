@@ -19,6 +19,8 @@
 \usepackage{textcomp}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
 
 %% Formats
 \usepackage[toc,page]{appendix}
@@ -31,6 +33,10 @@
 %% Algos
 \usepackage{StyFiles/algorithm}
 \usepackage{StyFiles/algorithmic}
+\usepackage[algo2e,ruled,vlined,linesnumbered]{algorithm2e}
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
 
 %% For maths
 \usepackage[cmex10]{amsmath}
@@ -40,6 +46,7 @@
 %% Commands
 \newcommand{\mmqp}[3]{\textrm{\sc MaxMarginQP}\!\left(\{\by_t, #1\}_{t=1}^{T}, #2, #3\right)}
 \newcommand{\energy}[1]{\ensuremath{E\!\left(#1\right)}}
+\newcommand{\bigCI}{\mathrel{\text{\scalebox{1.07}{$\perp\mkern-10mu\perp$}}}}
 
 %% Environments
 \newtheorem{thm}{Theorem}[section]
@@ -72,30 +79,30 @@
 \def\supervisor{Dacheng Tao}
 \def\assocsupervisora{Dongjin Song}
 %\def\sid{200342291}
-\maketitle
+% \maketitle
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Here begin the preliminaries
 \onehalfspacing
-\include{FrontBackMISC/frontmatter}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Here begin the preliminaries
+% \include{FrontBackMISC/frontmatter}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Dedication (optional)
-\cleardoublepage
-\pagestyle{empty}
-\include{FrontBackMISC/dedication}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Dedication (optional)
+% \cleardoublepage
+% \pagestyle{empty}
+% \include{FrontBackMISC/dedication}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Acknowledgements (optional!)
-\cleardoublepage
-\pagestyle{empty}
-\include{FrontBackMISC/ack}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Acknowledgements (optional!)
+% \cleardoublepage
+% \pagestyle{empty}
+% \include{FrontBackMISC/ack}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Abstract
-\cleardoublepage
-\pagestyle{headings}
-\include{abstract}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Abstract
+% \cleardoublepage
+% \pagestyle{headings}
+% \include{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Table of contents
@@ -120,14 +127,18 @@
 
 %% Introduction
 \include{intro}
+\part{Directed Probabilistic Graphical Model}
+\label{part:1}
+\include{Part1/sa}
+\include{Part1/sa_app}
 
-%% Chapters
-\include{RelatedWorks/RelatedWorks}
-\include{Methodology/Methodology}
-\include{Experiments/Experiments}
+\part{Undirected Probabilistic Graphical Model}
+\label{part:2}
 \include{Part2/mmpl}
 \include{Part2/mrf_lssvm_app}
 
+\part{Conclusion}
+\label{part:3}
 %% Conclusion
 \include{conclusion}
 
@@ -143,7 +154,7 @@
 % \end{doublepage}
 
 \bibliographystyle{abbrvnat}
-\bibliography{Bibs/thesis,Bibs/long,Bibs/scene,Bibs/proposal,Bibs/fin}
+\bibliography{Bibs/thesis,Bibs/long,Bibs/scene,Bibs/proposal,Bibs/fin,Bibs/hrl,Bibs/sa,Bibs/lit}
 \printindex
 
 \end{document}

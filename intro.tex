@@ -5,83 +5,26 @@
 \chapter{Introduction}
 \label{cha:intro}
 
-One interesting task in machine learning is labeling over complex
-and structured objects. Many applications such as image
-segmentation, motif finding and noun-phrase parsing involved with
-representing jointly correlated variables. Encoding consistency
-constraints over large number of random variables, for example,
-is central to the problem of image segmentation. Algorithm
-frameworks like Markov Random Field (MRF) containing higher order
-energy functions and max margin method for solving learning
-problem are raising interests recently due to their capability of
-representing structural dependencies of variables and ensuring
-computationally feasible approximation.
-  
-Lower linear envelope potentials is one of higher order energy
-functions defined on MRF which becomes popular due to their
-ability to encode consistency relationship between labels in
-clique. \citename{gouldlearning} investigated the submodularity
-of lower linear envelope potentials and developed a graph-cuts
-algorithm to perform exact inference on them. Then they proposed
-a Max-Margin framework to optimize potentials' parameters.
-However, in order to write the energy function into a linear
-combination, they sampled the lower linear envelope potentials
-using a set of fixed space points. Althought this formulation can
-be globally optimized by using the Max-Margin framework, it lost
-a rich class of representations of energy function due to the
-fixed space sampling. Removing the equally spaced constraint and
-introduce their auxiliary variables back will result in a latent
-SVM formulation. Under this formulation the algorithm can learn
-the lower linear envelope exactly. Our main goal in this thesis
-is focused on this extension. The difficulty is how to learn
-parameters of energy function together with latent information.
-  
-In practical, many information providing useful cues for
-prediction is not directly observable from data. For motif
-(repeated patterns in DNA sequences) finding problem, as an
-example, the task if to find motifs from a set of DNA sequences
-where the location of these motifs are unknown. Thus the
-information of position can be treated as hidden variable and is
-important to be considered in the model though it is not directly
-observable. Issues like this have been well studied by many
-researchers and latent SVMs, which can explicitly model hidden
-variables with joint feature vectors, outperforms many other
-methods.
-  
-The latent SVM was developed by
-\citename{felzenszwalb2008discriminatively} and
-\citename{yu2009learning} independently in different ways. The
-main idea is introducing a latent variable to extend the feature
-vector, which results in an arbitrary loss function, e.g. Hinge
-Loss, with an upper bound. Then the optimization was done by
-using Concave-Convex Procedure (CCCP) algorithm, which is
-guaranteed to decrease the objective function to a local minimum.
- 
-In this thesis, we are aiming at exploring a variant formulation
-of \citename{gouldlearning} by rewriting the lower linear
-envelope function directly into a linear combination and
-developing the learning algorithm using the latent structural
-SVM. The rest of the thesis is structured as follows:
 
-Chapter~\ref{cha:RelatedWorks} describes work related to MRFs and
-latent structural SVM. We also provide some background about our
-experiments. 
+% lead lag 现象不是一直存在，个股趋势也非常重要
 
-Chapter~\ref{cha:methodology} describes our main contributions.
-We first introduce the concept of the lower linear envelope and
-the exact inference method developed by \citename{gouldlearning}.
-We then propose the exact formulation of the lower linear
-envelope and develop the learning algorithm basing on that
-formulation. 
+It is well known that single the price movement of an individual
+stock not only depends on historical records but also highly
+correlated to other
+stocks~\cite{lo1990contrarian,mech1993portfolio} and may change
+in a non-synchronous
+manner~\cite{lo1990contrarian,brennan1993investment}. This
+correlated yet asynchronous price movement is sometimes referred
+to as the lead-lag relationship~\cite{hou2007industry} between a
+group of stocks and is thought to arise from the different speed
+of information
+diffusion\cite{lo1990contrarian,badrinath1995shepherds,mcqueen1996delayed}.
+When new information hits the market, some stocks react faster
+than others and identification of these leading stocks and their
+lead-lag relationships to other lagging stocks provides strong
+predictive evidence to the latter\textquotesingle s price
+movement.
 
-Chapter~\ref{cha:Experiments} describes two experiments we use to
-compare our new method to previous method~\cite{gouldlearning}.
-We also give brief explanations and summary at the end of each
-experiments. 
-
-Chapter~\ref{cha:conclusion} summarizes our work and point out
-advantages and disadvantages of our new formulation. We also
-provide some insights for future work.
 
 %%% Local Variables: 
 %%% mode: latex
