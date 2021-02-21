@@ -2,13 +2,31 @@
 %% 
 %% 
 
-\chapter{MRF-LSSVM Application: Learning Higher-Order Dynamics on
-  China Securities Index (CSI) 300}
+\chapter{Application: Learning Higher-Order Dynamics on China
+  Securities Index (CSI) 300}
 \chaptermark{Application: MRF-LSSVM on CSI 300}
 \label{cha:mrf_lssvm_app}
-It is well known that single the price movement of an individual
-stock not only depends on historical records but also highly
-correlated to other
+
+In \Chapref{cha:mrf} we proposed a novel framework, the
+MRF-LSSVMs, to optimize Markov Random Fields with higher-order
+Lower Linear Envelope Potentials under the Latent Structural
+Support Vector Machine framework. On synthetic checkerboard
+experiments, MRF-LSSVMs has shown its efficiency in representing
+higher-order dependencies and encouraging consistency among large
+group of random variables. In this Chapter, we continue our
+experiment on the real financial market stock price data set and
+show how MRF-LSSVMs can be used to model dependency dynamics
+between time series. In order to do that, we first employ
+Recurrent Neural Networks (RNNs) as unary energy functions. Each
+stock is treated as a unary node in MRFs and RNNs are used to
+extract feature from each stock's historical market price time
+series. We then layer MRFs on top of RNNs extractor and optimize
+the entire framework with the LSSVMs algorithm proposed in
+\Secref{sec:opt}.
+
+Specifically, it is well known that single price movement of an
+individual stock not only depends on historical records but also
+highly correlated to other
 stocks~\cite{lo1990contrarian,mech1993portfolio} and may change
 in a non-synchronous
 manner~\cite{lo1990contrarian,brennan1993investment}. This
@@ -23,25 +41,13 @@ lead-lag relationships to other lagging stocks provides strong
 predictive evidence to the latter\textquotesingle s price
 movement.
 
-
-% Extracting informational price changes from market price data has
-% been a long existing challenge in stock trading industry.
-% Researchers have developed hundreds of technical
-% indicators~\cite{kirkpatrick2010technical} to recognize trend or
-% predict volatility in future stock price movement. We are
-% inspired by the significant progress in computer vision area
-% where researchers developed neural networks which outperform
-% hand-crafted features such as SIFT, HOG, and SURF. In this paper
-% we try to investigate a multi-task hierarchical RNN neural
-% networks in order to replace those hand-crafted technical
-% indicators.
 However, there are three key challenges in utilizing the lead-lag
 relationship: (1) discovering which stock will be affected by
 newly arriving information (such as news); (2) identifying the
-group ($e.g.$, industry, supply chain, $etc.$) it belongs to along with
-the leading and lagging stocks in this group and
-modeling their relationships; (3) predicting the price movement of
-each stock by jointly considering knowledge in the correlated
+group ($e.g.$, industry, supply chain, $etc.$) it belongs to
+along with the leading and lagging stocks in this group and
+modeling their relationships; (3) predicting the price movement
+of each stock by jointly considering knowledge in the correlated
 group and an individual stock\textquotesingle price movement at
 that moment.
 
@@ -87,28 +93,19 @@ time interval, we leverage a hierarchical multi-task network to
 first extract features on different tasks and then concatenate
 those complementary feature vectors to make the final prediction.
 
-To model lead-lag relationships and address the other two
-challenges, we also present a binary Markov Random Fields (MRFs)
-with weighted lower linear envelopes as higher order (when the
-clique contains more than two nodes) energy
-functions~\cite{Kohli:CVPR07,Nowozin:2011,Gould:ICML2011,gouldlearning}.
-In our implementation, we treat each stock as a node in MRFs and
-each stock\textquotesingle s group with lead-lag relationships as
-a maximum clique in MRFs. We use a pre-defined industry
-classification list~\cite{ths} as the prior domain knowledge of
-each maximum clique for each stock. By using a weighted version
-of higher order functions, stocks have higher weights in the
-above list can be seen as leading stocks, and vice versa.
-Finally, the complexity of modeling dynamics between leading and
-lagging stocks becomes encouraging consistency over large cliques
-under weighted lower linear envelope potentials. Logits from
-hierarchical RNN networks are used as unary features in MRFs. By
-minimizing the energy function which contains both unary and
-higher order features, we can predict each stock\textquotesingle
-s future price movement by jointly considering individual market
-price trends together with lead-lag relationships.
+The MRF-LSSVMs framework can be employed to solve the other
+challenges. In our implementation, we treat each stock as a node
+in MRFs and each stock\textquotesingle s group with lead-lag
+relationships as a maximum clique in MRFs. The complexity of
+modeling dynamics between leading and lagging stocks becomes
+encouraging consistency over large cliques under weighted lower
+linear envelope potentials. Logits from hierarchical RNN networks
+are used as unary features in MRFs. By minimizing the energy
+function which contains both unary and higher order features, we
+can predict each stock\textquotesingle s future price movement by
+jointly considering individual market price trends together with
+lead-lag relationships.
 
-% todo: 这样说是否合适
 Unlike the first challenge trying to avoid prior knowledge, we
 consider being able to embed prior knowledge as an advantage.
 Definitions of sectors as well as leading and lagging stocks in
@@ -123,20 +120,7 @@ the proposed technique is the first one to investigate
 intra-clique relationships with higher-order MRFs on stock price
 movement prediction.
   
-% todo: 需要4.04分钟引用文献
-% We verify our methodology on Chinese stock market because it is
-% generally considered less mature than other developed
-% countries\textquotesingle thus potentially to be more
-% profitable~\cite{bessembinder1995profitability}. Even though
-% immature, \citename{fangyan2012} found that the average
-% duration of information arrival-conduction-integration-release
-% process is $4.04$ minutes. Therefore, a minute-level frequency
-% model is mandatory to leverage from lead-lag relationship. To
-% our best knowledge, our model is the first one demonstrating
-% lead-lag relationship at minute-level frequency on Chinese
-% stock market.
-
-To summarize, the main contributions of this paper as follows: 
+To summarize, the main contributions of this Chapter are:
 \begin{itemize}
 \item We propose a hierarchical multi-task RNN architecture to
   learn stock price patterns without hand-crafted features. To
@@ -144,21 +128,7 @@ To summarize, the main contributions of this paper as follows:
   multi-task neural networks for stock price movement prediction.
 \item We propose the first model that encode lead-lag
   relationships between stocks using higher-order MRFs.
-\item We develop an algorithm to learn the weighted lower linear
-  envelope with latent variables as a higher order energy function
-  under the latent structural SVM framework. Adding latent variables
-  to higher order functions enables our model to learn
-  richer representations than previously study~\cite{gouldlearning}.
-  Furthermore, our algorithm is not limited to
-  stock price movement prediction but can easily be applied
-  to other time series tasks and computer vision tasks.
 \end{itemize}
-
-In this section, we first introduce 3 stock datasets. Then, we
-introduce the parameter settings for our model and training
-details. Finally, we select four evaluation metrics and use them
-to demonstrate the effectiveness of our proposed model by comparing to
-several baseline approaches.
 
 \section{Related Works}
 \label{sec:background}
@@ -207,27 +177,30 @@ for further research.
 \section{Methods}
 \label{sec:meth}
 
-In this section, we introduce the multi-task RNN-MRFs
-architecture which is constructed with two parts. The first part
-is a ``Multi-task Market Price Learner", which consists of three
-dual stage attention based recurrent neural network
-(DARNN)~\cite{qin2017dual} modules. The goal of the first part is
-to tackle the first challenge, \ie automatically extracting
-informative representations of the raw market price without
-considering any hand-crafted feature and technical indicator. The
-second part is an ``Intra-clique Predictor'' which is a binary
-Markov random fields model with weighted higher order energy
-functions. Those higher order functions are applied to sector
-lists (used as maximum cliques) defined by financial experts. The
-domain knowledge about leading stocks and lagging stocks are
+In this section, we first introduce the multi-task RNN-MRFs
+architecture which is constructed with two parts. The detailed
+architecture is shown in Figure~\ref{fig:mrfrnn}.
+
+The first part is a ``Multi-task Market Price Learner", which
+consists of three dual stage attention based recurrent neural
+network (DARNN)~\cite{qin2017dual} modules. The goal of the first
+part is to tackle the first challenge, \ie automatically
+extracting informative representations of the raw market price
+without considering any hand-crafted feature and technical
+indicator.
+
+The second part is an ``Intra-clique Predictor'' which is the
+adaption of MRF-LSSVMs on stock market. In Intra-clique
+Predictor, higher order functions are applied to sector lists
+(used as maximum cliques) defined by financial index companies.
+The domain knowledge about leading stocks and lagging stocks are
 assigned as higher and lower weights in energy function
 accordingly. The goal of this part is to tackle the second and
 third challenges. Unary features learned by DARNN modules are
 jointly employed to maintain higher order consistency among
-stocks belonging to the same sector. The detailed architecture is
-shown in Figure~\ref{fig:mrfrnn}.
+stocks belonging to the same sector.
 
-\section{Multi-task Market Price Learner}
+\subsection{Multi-task Market Price Learner}
 \label{sec:mmpl}
 
 Stock price movement can be interpreted from many aspects such as
@@ -349,21 +322,28 @@ Other configurations stay the same with their algorithm.
 \label{sec:srp}
 
 In this section, we show how to construct an ``Intra-clique
-Predictor" to model lead-lag relationships and address the other
-two challenges as mentioned in the introduction. Specifically, we
-present a binary Markov Random Fields (MRFs) with weighted lower
-linear envelopes as higher order (when the clique contains more
-than two nodes) energy functions. Note that the algorithm
-proposed here is a general framework for classification tasks.
-Besides time series classification, it can also be applied to other tasks such as computer vision.
+Predictor" with MRF-LSSVMs to model lead-lag relationships and
+address the other two challenges as mentioned in the
+introduction. Specifically, each stock is treated as a node in
+MRFs and each stock's group with lead-lag relationships is
+treated as a maximum clique in MRFs. We use a pre-defined
+industry classification list \cite{ths} as the prior domain
+knowledge of each maximum clique for each stock. By using a
+weighted version of higher order functions, stocks have higher
+weights in the above list can be seen as leading stocks, and vice
+versa. However, in our implementation, we use logits from MMPL as
+unary function and weighted lower linear envelopes as higher
+order function to encode lead-lag relationships. Pairwise
+features are excluded. Finally, the complexity of modeling
+dynamics between leading and lagging stocks becomes encouraging
+consistency over large cliques under weighted lower linear
+envelope potentials. Log- its from hierarchical RNN networks are
+used as unary features in MRFs. By minimizing the energy function
+which contains both unary and higher order features, we can
+predict each stock's future price movement by jointly considering
+individual market price trends together with lead-lag
+relationships.
 
-Pairwise energy function is included only to show our framework
-applies to general cases. To our best knowledge, there is no
-public available definition of pairwise relationship between
-stocks. In our implementation, we use logits from MMPL as unary
-function and weighted lower linear envelopes as higher order
-function to encode lead-lag relationships. Pairwise features are
-excluded.
 
 The detail of the optimization algorithm is summarized in
 \algref{alg:learning_app}. As we mentioned in
@@ -381,8 +361,94 @@ SVM problem. Therefore, at the second stage, we use subgradient
 algorithm proposed in section~\ref{sec:mmpl} to replace the CCCP
 Inner Loop. Other settings remain the same.
 
+
+\begin{algorithm}[h]
+  \begin{algorithmic}[1]
+    \STATE{Set $MaxIter = 100$}
+    \STATE{ {\bf input} training set $\{\vy_i\}_{i=1}^{n}$, regularization constant $C > 0$,
+      and tolerance $\epsilon \geq 0$}
+    \STATE{Initialize $\vtheta$ using \algref{alg:init_theta}}
+    \REPEAT \STATE{CCCP Outer Loop}
+    \STATE{Set $iter = 0$}
+    \FOR{each training example, $i = 1, \ldots, n$}
+    \STATE{compute $ \vz_i^*=\argmax_{\mathbf{z} \in \mathcal{Z}}
+      \theta \cdot \psi(\mathbf{y}_i,\mathbf{z}) $}
+    \ENDFOR
+
+    \STATE{ {\bf initialize} active constraints set ${\cal C}_i = \{ \}$ for all $i$}
+    \REPEAT \STATE{CCCP Inner Loop}
+
+    \STATE{solve the quadratic programming problem in
+      equation~\ref{eq:mrflssvm_object} with respect to active
+      constraints set ${\cal C}_i$ for all $i$ and concavity constraints
+      $A\vtheta\geq \epsilon$ to get
+      $\hat{\vtheta}$ and $\hat{\vx_i}$}
+
+    \FOR{each training example, $i = 1, \ldots, n$}
+    \STATE{compute $\hat{\vy_i},\hat{\vz_i} = \argmin_{\vy}
+      E(\vy,\vz; \hat{\vtheta}) - \Delta(\vy, \vz, \vy_i)$}
+    \IF{$\hat{\xi}_i + \epsilon \!<\! \Delta(\hat{\vy_i},
+      \hat{\vz_i}, \vy_i) -
+      E(\hat{\vy_i},\hat{\vz_i}; \hat{\vtheta}) + E(\vy_i, \vz_i^*; \hat{\vtheta})$}
+    \STATE{${\cal C}_i \leftarrow {\cal C}_i \cup \{{\vy}_i^\star\}$}
+    \ENDIF
+    \ENDFOR
+    \UNTIL{no more violated constraints}
+    \STATE{ {\bf return} parameters $\hat{\vtheta}$}
+    \STATE{Set $iter = iter+1$}
+
+    \UNTIL{$iter\geq MaxIter$}
+    \STATE{ {\bf return} parameters $\hat{\vtheta}$}
+  \end{algorithmic}
+  \caption{\label{alg:learning_app} Learning lower linear envelope
+    MRFs with latent variables.}
+\end{algorithm}
+
+Empirically, the more evenly distributed of $W_c(Y_c)$ where
+$c\in\cal C$ on $x$ axis, the more rich representation (number of
+linear functions) the energy function should have. In order to
+initialize $\vtheta$, we first determine the x-coordinate of
+sampled points $sp$. Then we sample its y-coordinate from a
+uniform distribution ${\cal
+  U}(\text{upbound},\text{upbound}-0.5)$ to add some randomness
+in our initialization as well as maintain concavity. Linear
+parameters $a_k$ and $b_k$ are later calculated using those
+sampled points $sp_k$ and $sp_{k-1}$. At last we encode
+$\{a_k,b_k\}_{k=1}^K$ into $\vtheta$ using
+equation~\eqref{eq:llsvm_param}. This algorithm is summarized in
+\algref{alg:init_theta}.
+
+\begin{algorithm}[h]
+  \begin{algorithmic}[1]
+    \STATE{$gap=\frac{1}{K}$, $a_1={\cal U}(0,1e6)$, $b_1=0$,
+      $sp_1=(0,0)$, $w_0=0$, $counter=2$} \FOR{each
+      clique $c\in \cal C$} \STATE{Compute weighted clique value
+      $w_c=W_c(y_C)$} \IF{$w_c-w_{c-1}>gap$}
+    \STATE{$upbound = a_{counter}w_c+b_{counter}$\\
+      $sp_{counter}=(w_c,{\cal U}(upbound-0.5,upbound))$\\
+      Calculate $a_{counter}$ and $b_{counter}$ using
+      $sp_{counter-1}$ and $sp_{counter}$\\
+      $counter=counter+1$}
+    \ENDIF
+    \ENDFOR
+    \STATE{If $counter<K$, remaining $a$s and $b$s are all set to
+      be $a_{counter}$ and $b_{counter}$} \STATE{Calculate
+      $\vtheta$ using $\{a_k,b_k\}_{k=1}^K$}
+  \end{algorithmic}
+  \caption{\label{alg:init_theta} Empirical initialization
+    algorithm for $\vtheta$}
+\end{algorithm}
+
+
+
 \section{Dataset and Model Settings}
 \label{sec:dataset}
+
+In this section, we first introduce 3 stock datasets. Then, we
+introduce the parameter settings for our model and training
+details. Finally, we select four evaluation metrics and use them
+to demonstrate the effectiveness of our proposed model by
+comparing to several baseline approaches.
 
 To demonstrate the effectiveness of higher order consistency, we
 choose three exclusive and the most famous stock indexes on Chinese
@@ -635,8 +701,8 @@ in MRFs.
 Here we show how to model individual stock price predictions
 without hand-crafted features and encode lead-lag relationships
 between stocks using weighted higher-order MRFs. A multi-task
-neural network framework - Multi-task Market Price Learner (MMPL)
-- is proposed to automatically extract diversified and
+neural network framework: Multi-task Market Price Learner (MMPL),
+is proposed to automatically extract diversified and
 complementary features from individual stock price sequences.
 Features learned by MMPL are passed to a binary MRF with a
 weighted lower linear envelope energy function to utilize
@@ -659,51 +725,8 @@ implicit relationship between the expert-defined index list and
 graph RNN~\cite{you2018graphrnn}, which could further help to
 reduce the domain knowledge required by our framework.
 
-%%
-%% The acknowledgments section is defined using the "acks" environment
-%% (and NOT an unnumbered section). This ensures the proper
-%% identification of the section in the article metadata, and the
-%% consistent spelling of the heading.
-
 \section{Training Details}
 \label{sec:train_detail}
-
-\subsection{Initialization of lower linear envelope}
-\label{sec:sup_init}
-
-We assume that the more evenly distributed of $W_c(Y_c)$ where
-$c\in\cal C$ on $x$ axis, the more rich representation (number of
-linear functions) the energy function should have. In order to
-initialize $\vtheta$, we first determine the x-coordinate of
-sampled points $sp$. Then we sample its y-coordinate from a
-uniform distribution ${\cal U}(\text{upbound},\text{upbound}-0.5)$ to add some
-randomness in our initialization as well as maintain concavity.
-Linear parameters $a_k$ and $b_k$ are later calculated using
-those sampled points $sp_k$ and $sp_{k-1}$. At last we encode
-$\{a_k,b_k\}_{k=1}^K$ into $\vtheta$ using
-equation~\eqref{eq:llsvm_param}. This algorithm is summarized in
-\algref{alg:init_theta}.
-
-\begin{algorithm}[h]
-  \begin{algorithmic}[1]
-    \STATE{$gap=\frac{1}{K}$, $a_1={\cal U}(0,1e6)$, $b_1=0$,
-      $sp_1=(0,0)$, $w_0=0$, $counter=2$} \FOR{each
-      clique $c\in \cal C$} \STATE{Compute weighted clique value
-      $w_c=W_c(y_C)$} \IF{$w_c-w_{c-1}>gap$}
-    \STATE{$upbound = a_{counter}w_c+b_{counter}$\\
-      $sp_{counter}=(w_c,{\cal U}(upbound-0.5,upbound))$\\
-      Calculate $a_{counter}$ and $b_{counter}$ using
-      $sp_{counter-1}$ and $sp_{counter}$\\
-      $counter=counter+1$}
-    \ENDIF
-    \ENDFOR
-    \STATE{If $counter<K$, remaining $a$s and $b$s are all set to
-      be $a_{counter}$ and $b_{counter}$} \STATE{Calculate
-      $\vtheta$ using $\{a_k,b_k\}_{k=1}^K$}
-  \end{algorithmic}
-  \caption{\label{alg:init_theta} Empirical initialization
-    algorithm for $\vtheta$}
-\end{algorithm}
 
 \subsection{Multi-task training}
 \label{sec:multi_train}
@@ -750,48 +773,6 @@ at the second stage.
 
 \subsection{End-to-end multi-task RNN-MRFs training}
 \label{sec:mrf_train}
-
-\begin{algorithm}[h]
-  \begin{algorithmic}[1]
-    \STATE{Set $MaxIter = 100$}
-    \STATE{ {\bf input} training set $\{\vy_i\}_{i=1}^{n}$, regularization constant $C > 0$,
-      and tolerance $\epsilon \geq 0$}
-    \STATE{Initialize $\vtheta$ using \algref{alg:init_theta}}
-    \REPEAT \STATE{CCCP Outer Loop}
-    \STATE{Set $iter = 0$}
-    \FOR{each training example, $i = 1, \ldots, n$}
-    \STATE{compute $ \vz_i^*=\argmax_{\mathbf{z} \in \mathcal{Z}}
-      \theta \cdot \psi(\mathbf{y}_i,\mathbf{z}) $}
-    \ENDFOR
-
-    \STATE{ {\bf initialize} active constraints set ${\cal C}_i = \{ \}$ for all $i$}
-    \REPEAT \STATE{CCCP Inner Loop}
-
-    \STATE{solve the quadratic programming problem in
-      equation~\ref{eq:mrflssvm_object} with respect to active
-      constraints set ${\cal C}_i$ for all $i$ and concavity constraints
-      $A\vtheta\geq \epsilon$ to get
-      $\hat{\vtheta}$ and $\hat{\vx_i}$}
-
-    \FOR{each training example, $i = 1, \ldots, n$}
-    \STATE{compute $\hat{\vy_i},\hat{\vz_i} = \argmin_{\vy}
-      E(\vy,\vz; \hat{\vtheta}) - \Delta(\vy, \vz, \vy_i)$}
-    \IF{$\hat{\xi}_i + \epsilon \!<\! \Delta(\hat{\vy_i},
-      \hat{\vz_i}, \vy_i) -
-      E(\hat{\vy_i},\hat{\vz_i}; \hat{\vtheta}) + E(\vy_i, \vz_i^*; \hat{\vtheta})$}
-    \STATE{${\cal C}_i \leftarrow {\cal C}_i \cup \{{\vy}_i^\star\}$}
-    \ENDIF
-    \ENDFOR
-    \UNTIL{no more violated constraints}
-    \STATE{ {\bf return} parameters $\hat{\vtheta}$}
-    \STATE{Set $iter = iter+1$}
-
-    \UNTIL{$iter\geq MaxIter$}
-    \STATE{ {\bf return} parameters $\hat{\vtheta}$}
-  \end{algorithmic}
-  \caption{\label{alg:learning_app} Learning lower linear envelope
-    MRFs with latent variables.}
-\end{algorithm}
 
 With converged MMPL and MRFs at hand, now we can go forward to
 train them in an end-to-end manner. We only include pairwise

@@ -2,7 +2,8 @@
 %% 
 %% 
 
-\chapter[MRF-LSSVMs]{Modeling Higer-order Structural Dependencies with Markov Random Fields (MRFs)}
+\chapter{Modeling Higer-order Structural Dependencies with Markov Random Fields (MRFs)}
+\chaptermark{MRF-LSSVMs}
 \label{cha:mrf}
 
 One challenging task in machine learning is recognizing and
@@ -646,6 +647,25 @@ and we have $a_k > a_{k+1}$ and $b_k < b_{k+1}$). Since the energy function~\eqr
 is submodular, the \emph{st-min-cut} graph can be constructed 
 based on equation~\eqref{eqn:posiform}.
 
+
+\begin{figure}[t]
+  \centering
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{cc}
+    \includegraphics[width=0.47\columnwidth]{Part2/figures/ho.png}&
+                                                                         \includegraphics[width=0.37\columnwidth]{Part2/figures/up.png}\\
+                                                                         {\small (a)} & {\small (b)} 
+  \end{tabular}
+  \caption{\label{fig:stmincut} $st$-graph construction for
+    equation~\eqref{eqn:posiform}, unary and pairwise terms.
+    Every cut corresponds to an assignment to the random
+    variables, where variables associated with nodes in the $\gS$
+    set take the value one, and those associated with nodes in
+    the $\gT$ set take the value zero. With slight abuse of
+    notation, we use the variables to denote nodes in our graph.}
+\end{figure}
+
+
 The construction (including unary and pairwise) is explained in
 \Figref{fig:stmincut}. Figure (a) denotes construction for
 equation~\eqref{eqn:posiform}. For each lower linear envelope
@@ -661,24 +681,6 @@ sides), weights on each edge are corresponding to values in input
 unary terms accordingly. For pairwise edges (2 edges in the
 middle), both edges share the same weight which equals to the
 input pairwise term.
-
-
-\begin{figure}[t]
-  \centering
-  \setlength{\tabcolsep}{2pt}
-  \begin{tabular}{cc}
-    \includegraphics[width=0.54\columnwidth]{Part2/figures/ho.png}&
-                                                                         \includegraphics[width=0.4\columnwidth]{Part2/figures/up.png}\\
-                                                                         {\small (a)} & {\small (b)} 
-  \end{tabular}
-  \caption{\label{fig:stmincut} $st$-graph construction for
-    equation~\eqref{eqn:posiform}, unary and pairwise terms.
-    Every cut corresponds to an assignment to the random
-    variables, where variables associated with nodes in the $\gS$
-    set take the value one, and those associated with nodes in
-    the $\gT$ set take the value zero. With slight abuse of
-    notation, we use the variables to denote nodes in our graph.}
-\end{figure}
 
 \section[Solving MRFs under LSSVMs]{Solving MRFs under the Latent
   Structrual SVMs (LSSVM) Framework}
@@ -782,16 +784,6 @@ infer latent variable $\vz$ explicitly by:
             1 & \text{otherwise}.
           \end{cases}
 \end{align}
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.8\columnwidth]{Part2/figures/linEnvLatentFig.png}
-  \caption{\label{fig:concave} Example piecewise-linear concave
-    function of $W_{\!c}(\vy_c) = \sum_{i \in c} w^c_i y_i$.
-    Assume the second linear function is active namely
-    $\vz^c=(1,1,0,0)$. The result of linear combination of
-    parameter vector and feature vector is same as quadratic
-    psuedo-Boolean function.}
-\end{figure}
 
 To show the equivalence between
 equation~\eqref{eqn:binary_concave_z} and
