@@ -2,6 +2,13 @@
 %% 
 %% 
 
+\chapter{The Skill-Action (SA) Architecture: Multi-timescale
+  Sequence Learning under Hierarchical Reinforcement Learning
+  Framework}
+\chaptermark{The Skill-Action Architecture}
+\label{cha:sa_app}
+
+
 Reinforcement Learning (RL) is a paradigm for imitating humans
 trial-and-error learning process: RL trains an agent to maximise
 rewards by taking actions in and receiving feedback from an
@@ -232,7 +239,7 @@ However, for the master policy's policy gradients learning, OC
 still remains SMDP-style. \citename{klissarov2017learnings}
 attempted to combine OC with PPO in an intra-option learning
 manner (PPOC). However, as we show in
-Appendix~\ref{sec:appen_hmm}, due to the SMDP formulation,
+\Secref{sec:appen_hmm}, due to the SMDP formulation,
 gradients they use for updating master policy are inconsistent.
 \citename{zhang2019dac} reformulated the option framework into
 two augmented MDPs. Under this formulation all policies can be
@@ -246,12 +253,12 @@ and directly approximated the marginalized master policy.
 However, no concrete formulations and policy gradients theorems
 were developed in their work. \citename{daniel2016probabilistic}
 proposed an MDP-formulated PGM similar to ours in
-Appendix~\ref{sec:appen_oc_pgm}. However, they did not prove the
+\Secref{sec:appen_oc_pgm}. However, they did not prove the
 equivalence between the MDP-formulation and SMDP by employing
 conditional independencies. Furthermore, their learning algorithm
 is EM based while ours is policy gradient based. Our work is
 motivated by capsule networks \citename{kosiorek2019stacked}
-(more details in Appendix~\ref{sec:append_gist}) and is developed
+(more details in \Secref{sec:append_gist}) and is developed
 independently from above literature.
 
 With respect to optimization, \citename{zhang2019dac} pointed out
@@ -293,826 +300,10 @@ the future work.
 % \cite{gupta2019relay}. With hierarchical knowledge explicitly
 % represented in embedding matrix, SA provides a more efficient and
 % scalable HRL model for such frameworks.
-
-\section{The Skill-Action Architecture}
-\label{sec:sa}
-
-In this section, we propose a simple
-MDP~\cite{puterman2014markov} implementation of the option
-framework: the Skill-Action (SA) architecture. To overcome
-limitations of the SMDP option framework, we first prove an MDP
-equivalence to the SMDP. Briefly, we propose a novel MDP
-``mixture master policy'' (Appendix \ref{sec:appen_hmm}). Unlike
-the conventional SMDP master policy that only depends on the
-current state, the mixture master policy has extra dependencies
-on the termination function and the previously activated option.
-We then prove that the MDP has identical optimal properties with
-the SMDP option framework \cite{sutton1999between} and identical
-policy gradients with the option-critic architecture
-\cite{bacon2017option}. Due to page limitations, we provide
-detailed theorems and proofs in Appendix~\ref{sec:appen_oc_pgm}.
-
-\begin{thm}
-  \label{theo:smdp_mdp}
-  The SMDP formulated option framework, which employs Markovian
-  options, has an underlying MDP equivalence.
-\end{thm}
-\begin{prop}
-  \label{theo:smdp_mdp}
-  The MDP formulation has identical optimality (value functions)
-  with the SMDP option framework~\cite{sutton1999between}.
-\end{prop}
-\begin{prop}
-  \label{theo:smdp_mdp}
-  The MDP formulation has identical policy gradients with the
-  option-critic architecture~\cite{bacon2017option}.
-\end{prop}
-
-Although the mixture master policy (Appendix Eq.~\ref{eq:oc_po})
-is MDP formulated, the master policy's (Appendix
-Eq.~\ref{eq:oc_master}) gradients are still blocked by its
-dependency on the termination function. To overcome this, we
-present a marginalized derivation of the equivalence: the
-Skill-Action (SA) architecture. SA marginalizes the termination
-function away and models the marginalized policy (Appendix
-Eq.~\ref{eq:oc_oso_p}) directly with a ``skill policy''
-(Eq.~\ref{eq:sa_o_p}), which is used to replace both the master
-policy and termination function while implements their
-functionalities with the attention
-mechanism~\cite{vaswani2017attention}. Section~\ref{sec:sa_PGM}
-describes the dynamics (Markov process) of SA.
-Section~\ref{sec:sa_mdp} defines value functions on top of the
-dynamics, thus formulating the MDP. Policy gradient theorems are
-then derived. Section~\ref{sec:net_arch} implements SA by
-employing neural networks and the Multi-Head Attention
-mechanism~\cite{vaswani2017attention}, which enables SA to
-temporally extend skills in the absence of the termination
-function.
-
-
-\subsection{Dynamics of the Skill-Action Architecture}
-\label{sec:sa_PGM}
-
-\begin{figure*}[thb]
-  \centering
-  \begin{tabular}{cc}
-    \includegraphics[width=0.45\linewidth]{./Part1/figures/doe.png}&
-                                                              \includegraphics[width=0.45\linewidth]{./Part1/figures/sa_attn_net.png}\\
-    {\small (a) PGM of SA}&
-                            {\small (b) Network
-                            Architecture of SA}\\
-   
-  \end{tabular}\vspace{-2mm}
-  \caption{\label{fig:sa_net} The Skill-Action (SA) Architecture}
-  \vspace{-6mm}
-\end{figure*}
-
-In this section, we define the dynamics (Markov process) of SA.
-We first introduce MDP notations. A Markov decision process
-$M=\{\sS,\sA,r,P,\gamma\}$ consists of a state space $\sS$, an
-action space $\sA$, a state transition function
-$P(\rvs_{t+1}|\rvs_t): \sS\rightarrow\sS$, a reward function
-$r(\rvs,\rva):\sS\times\sA\rightarrow\sR$, and a discount factor
-$\gamma\in\sR$. A policy $\pi=P(\rva|\rvs):\sS\rightarrow \sA$ is
-a probability distribution defined over actions conditioning on
-states. An expected discounted return is defined as $G_t =
-\sum_k^N\gamma^kR_{t+k+1}$, where $R\in\sR$ is the actual reward
-received from the environment. The value function
-$V[\rvs_t]=\E_{\pi}[G_t|\rvs_t]$ is the expected return starting
-at state $\rvs_t$ and following policy $\pi$ thereafter. The
-action-value function is defined as $Q[\rvs_t,\rva_t]=
-\E_{\tau_\pi}[G_t|\rvs_t,\rva_t]$. An Markov decision process
-together with value functions defined on it are referred to as an
-MDP~\cite{puterman2014markov}.
-
-Having defined notations of MDP, we propose the dynamics of SA.
-Specifically, a \textbf{skill index vector} $\rvo\in\sZ^M_2$ is
-an $M$-dimensional one-hot vector, where $M$ denotes the total
-number of skills to learn. Each entry $\ro\in\{0,1\}$ is a binary
-random variable. $\ro_i=1$ means that the $i$-th skill is
-activated. A \textbf{skill context matrix}
-\cite{kosiorek2019stacked} $\mW_S\in \sR^{M\times E}$ is a
-learnable parameter containing $M$ rows of $E$ dimensional real
-vectors, the $i$-th row of $\mW_S$ corresponds to the $i$-th
-skill $\ro_i$, and different columns encode different properties
-of a skill. A \textbf{skill context vector} $\hat{\rvo}_t$ is
-defined as:
-\begin{equation}
-  \label{eq:sa_skill_vector}
-  \hat{\rvo}_t=\mW_S^{T}\cdot\rvo_t, \;\hat{\rvo}_t\in \sR^{E}.
-\end{equation}
-The \textbf{skill policy} is defined as:
-\begin{equation}
-  \label{eq:sa_o_p}
-  P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1};\mW_s): \sS\times\sR^{E} \rightarrow \sR^{E},
-\end{equation}
-% todo: explain the functionality of P(o); what's the motivation;
-% how is it implemented; advantages; contributions
-which is a probability distribution over skill context vector
-$\hat{\rvo}_{t}$ conditioned on state $\rvs_t$ and previous
-sampled skill context vector $\hat{\rvo}_{t-1}$, with $\mW_S$ as
-its learnable parameters.
-
-The \textbf{action policy} is defined as:
-\begin{equation}
-  \label{eq:sa_a_p}
-  P(\rva_t|\rvs_t,\hat{\rvo}_t): \sS\times\sR^E\rightarrow\sA,
-\end{equation}
-which is a probability distribution over the action random
-variable $\rva_t\in\sA$ conditioned on the skill context vector
-$\hat{\rvo}_t$ and state $\rvs_t$, and decodes them into primary
-actions.
-
-With both skill and action policies in hand, the dynamics of the
-SA are defined as a Probabilistic Graphical Model
-(PGM)~\cite{koller2009probabilistic} (Figure~\ref{fig:sa_net}
-(a)):
-\begin{align}
-  \label{eq:sa_pgm_joint}
-  \nonumber  P(\tau) = &P(\rvs_0)P(\hat{\rvo}_0)P(\rva_0|\rvs_0,\hat{\rvo}_0)\\
-                       &\prod_{t=1}^\infty P(\rvs_t|\rvs_{t-1},\rva_{t-1})P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1})P(\rva_{t}|\rvs_{t},\hat{\rvo}_{t}),
-\end{align}
-where
-$P(\tau)=P(\rvs_0,\hat{\rvo}_0,\rva_0,\rvs_1,\hat{\rvo}_1,\rva_1,\ldots)$
-denotes the joint distribution of the PGM. Note that under this
-formulation, $P(\tau)$ is actually an Hidden Markov Model (HMM)
-with $\rvs_t$, $\rva_t$ as observable random variables and
-$\hat{\rvo}_t$ as latent variables.
-
-\subsection{MDP of the Skill-Action Architecture}
-\label{sec:sa_mdp}
-
-With SA's dynamics in hand, in this section, we first propose a
-novel ``skill value upon arrival function'' and theoretically
-prove that it has a smaller variance than the conventional value
-function. This property is empirically justified in
-Section~\ref{sec:exp_perf} and further discussed in
-Appendix~\ref{sec:append_gist}. Then, we derive the recursive
-formulation of value functions and formulate the MDP. Based on
-the MDP, skill and action policies' gradients theorems are
-finally derived.
-
-Rather than use the conventional value function $V[\rvs_t]$, we
-define the \textbf{skill value upon arrival function}
-$V[\rvs_t,\hat{\rvo}_{t-1}]$ (derivations in Appendix
-\ref{sec:appen_sa_v_proof}) as:
-\vspace{-3mm}
-\begin{equation}
-  \label{eq:sa_v}
-  V[\rvs_t,\hat{\rvo}_{t-1}]=\E[G_t|\rvs_t,\hat{\rvo}_{t-1}]= \sum_{\hat{\rvo}_t}P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1})Q_O[ \rvs_t,\hat{\rvo}_t].
-\end{equation}
-\begin{prop}
-  \label{prop:var_unb}
-  $V[ \rvs_t,\hat{\rvo}_{t-1} ]$ is an unbiased estimation of $V[ \rvs_t ]$.
-\end{prop}
-\begin{prop}
-  \label{prop:var_red}
-  The variance of $V[ \rvs_t,\hat{\rvo}_{t-1} ]$ is less than or equal to $V[ \rvs_t ]$.
-\end{prop}
-\vspace{-3mm}
-\begin{proof}
-  See Appendix \ref{sec:appen_sa_v_proof}
-\end{proof}\vspace{-3mm}
-Eq.~(\ref{eq:sa_v}) states that the skill value function upon
-arrival is an expectation over skill value function
-$Q_O[\rvs_t,\hat{\rvo}_{t}]$ conditioned on previous skill
-$\hat{\rvo}_{t-1}$. The \textbf{skill value function}
-$Q_O[\rvs_t,\hat{\rvo}_{t}]$ is defined as:
-\begin{align}
-  Q_O[\rvs_t,\hat{\rvo}_{t}]=\E[G_t|\rvs_t,\hat{\rvo}_{t}]
-  \label{eq:sa_q_o}=\sum_{\rva_t}P(\rva_t|\rvs_t,\hat{\rvo}_{t})Q_A[ \rvs_t,\hat{\rvo}_t,\rva_t],
-\end{align}
-and the \textbf{skill-action value function} $Q_A[
-\rvs_t,\hat{\rvo}_t,\rva_t]$ is defined as (derivations in
-Appendix \ref{sec:appen_sa_v_proof}):
-\begin{align}
-\label{eq:sa_q_a}
-Q_A[ \rvs_t,\hat{\rvo}_t,\rva_t]&=\E[G_t| \rvs_t,\hat{\rvo}_t,\rva_t]\nonumber\\
-   &= r(s,a) + \gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)V[\rvs_{t+1},\hat{\rvo}_t],
-\end{align}
-where $\gamma \in \sR$ is a discounting factor. Expanding
-(Eq.~\ref{eq:sa_q_a}) with (Eq.~\ref{eq:sa_v}) gives us a
-recursion formulation from which Bellman equations and policy
-gradient theorems are derived. To keep notations uncluttered, we
-use $\theta_o$ to denote skill policy's parameters
-(Eq.~\ref{eq:sa_o_p}) and $\theta_a$ to denote action policy's
-parameters (Eq.~\ref{eq:sa_a_p}). The skill and action policies'
-gradient theorems are:
-\begin{thm}
-  \textbf{ Skill Policy Gradient Theorem: } Given a stochastic skill policy
-  differentiable in its parameter vector $\theta_o$, the gradient
-  of the expected discounted return with respect to $\theta_o$ is:
-  \begin{equation}
-    \label{eq:sa_o_grad}
-    \frac{\partial V[\rvs_t,\hat{\rvo}_{t-1}]}{\partial \theta_o}=\E[\;\frac{\partial P(\hat{\rvo}'|\rvs',\hat{\rvo})}{\partial \theta_o}Q_O[\rvs',\hat{\rvo}']\;|\;\rvs_t,\hat{\rvo}_{t-1}],
-  \end{equation}
-  ~where $\hat{\rvo}'$ is one time step later than $\hat{\rvo}$.
-\end{thm}
-\begin{thm}
-  \textbf{ Action Policy Gradient Theorem: } Given a stochastic action policy
-  differentiable in its parameter vector $\theta_a$, the gradient
-  of the expected discounted return with respect to $\theta_a$ is:
-  \begin{equation}
-    \label{eq:sa_a_grad}
-      \frac{\partial Q_O[\rvs_t,\hat{\rvo}_t]}{ \partial \theta_a }=\E[\;\frac{\partial P(\rva|\rvs,\hat{\rvo})}{\partial \theta_a}Q_A[ \rvs,\hat{\rvo},\rva]\; | \; \rvs_t,\hat{\rvo}_t].
-  \end{equation}
- \vspace{-5mm} \begin{proof}
-    See Appendix~\ref{sec:appen_sa_a_grad}
-  \end{proof}\vspace{-3mm}
-\end{thm}
-
-% towrite:
-%As conventional option frameworks, the action policy can also be
-%composed of $M$ action policies, in which case all of our
-%theorems still hold. However, 
-
-Compared to MDP formulated algorithms, SMDP option frameworks are
-sample inefficient and notoriously unstable to
-hyperparameters~\cite{zhang2019dac}. The skill and action
-policies' gradient theorems enable SA to be compatible with both
-MDP on-policy and off-policy algorithms, and thus has much better
-stability and convergence. This work is focused on deriving MDPs
-of SA and its policy gradient theorems. To be comparable with
-previous work \cite{zhang2019dac}, in this paper we directly
-apply PPO~\cite{schulman2017proximal} to our learning algorithm
-(Algorithm~\ref{alg:sa} in Appendix~\ref{sec:append_algo}).
-Recent work \cite{wulfmeier2020data} shows that the off-policy
-algorithm gives a performance boost to option variants. Designing
-off-policy algorithms for SA remains open for future work.
-
-
-\subsection{Networks Architecture}
-\label{sec:net_arch}
-\begin{figure*}[h]
-  \centering
-  \begin{tabular}{c}
-    \includegraphics[width=2\columnwidth]{Part1/figures/infinite_horizon.png}\\
-    \vspace{-1mm}{\small (a) Infinite Horizon Environments}\\
-    \includegraphics[width=2\columnwidth]{Part1/figures/finite_horizon_4.png}\\
-    \vspace{-1mm}{\small (b) Finite Horizon Environments}
-  \end{tabular}\vspace{-2mm}
-  \caption{\label{fig:exp_dac} Episodic Returns. X-axis is time step. Y-axis is
-    Episodic Return}
-  \vspace{-4mm}
-\end{figure*}
-After deriving the MDP of SA, we present a simple neural network
-implementation of the Skill-Action Architecture
-(Figure~\ref{fig:sa_net}). Unlike the conventional SMDP option
-framework, which employs a termination function and an SMDP
-master policy to temporally extend the execution of an option, SA
-implements the temporal extension functionality by employing the
-Multi-Head Attention (MHA) mechanism~\cite{vaswani2017attention}
-(due to page limitations, we briefly explain MHA in
-Appendix~\ref{sec:appen_mha}). At each time step, the skill
-policy $P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1};\mW_s)$ attends to
-(measures the compatibility of) all skill context vectors in
-$\mW_s$ according to $\rvs_t$ and $\hat{\rvo}_{t-1}$. If
-$\hat{\rvo}_{t-1}$ still fits $\rvs_t$, then the skill policy
-assigns a larger attention weight to $\hat{\rvo}_{t-1}$, thus has
-a tendency to continue with it. Otherwise, a new skill with
-better compatibility will be sampled. The action policy is as
-simple as one decoder to decode $\hat{\rvo}_t$ and $\rvs_t$ into
-primary actions $\rva_t$. The attention mechanism together with
-skill context vectors enable SA to temporally extend skills even
-in the absence of termination functions.
-
-Specifically, a \textbf{skill policy} (Eq.~(\ref{eq:sa_o_p}))
-uses a concatenation of current state $\rvs_t$ and previous skill
-context vector $\hat{\rvo}_{t-1}$ as the query for MHA. Both key
-and value matrices are the skill context matrix $\mW_S$. In this
-way, we have:
-
-\begin{align}
-  \label{eq:sa_net_skill_concat}
-  \hat{\rvs}_{t-1} &= linear(\text{Concat}[\rvs_t,\hat{\rvo}_{t-1}]),\\
-  \label{eq:sa_net_skill_mha}
-  \rvd^O_t &= \text{MHA}(\hat{\rvs}_{t-1},\mW_S,\mW_S),\\
-  \label{eq:sa_net_skill_sample}
-  \rvo_t &\sim Categorical(\rvo_t|\rvd^O_t),
-\end{align}
-where the $linear$ layer simply projects the concatenated vector
-to $E$ dimension. MHA is employed to attend to (measures the
-compatibility of) all skills in $\mW_s$ according to $\rvs_t$ and
-$\hat{\rvo}_{t-1}$. The \textbf{skill density vector} $\rvd^O_t$
-is then used as densities for a Categorical distribution
-$P(\rvo_t|\rvd^O_t)$, from which the new one-hot \textbf{skill
-  index vector} $\rvo_t$ is sampled from. We can retrieve the
-\textbf{skill context vector} by $\hat{\rvo}_t =
-\mW_S^T\cdot\rvo_t$. With the skill context vector $\hat{\rvo}_t$
-in hand, the \textbf{action policy} can be designed as simple as
-a multi-layer Feed-Forward Networks (FFN) decoder:
-\begin{align}
-  \label{eq:sa_net_action_concat}
-  \rvd^A_t &= \text{FFN}(\rvs_t,\hat{\rvo}_{t}),\\
-  \label{eq:sa_net_action_sample}
-  \rva_t &\sim P(\rva_t|\rvd^A_t),
-\end{align}
-where $\rvd^A_t$ is a density vector and $P$ is an arbitrary
-probability distribution (works for both discrete and continuous
-situations).
-
-Similar to \citename{zhang2019dac}, because of the \textbf{skill
-  value upon arrival function} $V(\rvs_t,\hat{\rvo}_{t-1})$,
-(Eq.~\ref{eq:sa_v}) is an expectation of the \textbf{skill value
-  function} $Q_O[\rvs_{t},\hat{\rvo}_{t}]$ (Eq.~\ref{eq:sa_q_o}).
-It is sufficient for us to model only one critic function:
-\begin{equation}
-  \label{eq:nn_o_input}
-  Q_O=\text{FFN}(\rvs_t,\hat{\rvo}_t),
-\end{equation}
-where $Q_O$ is implemented as a multi-layer FFN. We summarize the
-detailed learning procedures in Algorithm~\ref{alg:sa} in
-Appendix~\ref{sec:append_algo}.
-
-Since $\hat{\rvo}_t$ encodes all context of a skill, SA only
-needs one action policy decoder to decode the activated skill
-context vectors $\hat{\rvo}_t$ and current state $\rvs_t$ into
-primary actions $\rva_t$. This design choice largely improves the
-scalability of SA: adding one more skill is as cheap as adding a
-skill context vector. Moreover, unlike the option framework, in
-which only the activated option's action policy gets updated, the
-action policy learns to decode each dimension of skill context
-vectors at every time step. This design choice largely improves
-sample efficiency and enables SA to converge faster than the
-conventional option framework.
-
-% todo: layer by layer training
-% todo: training layer by layer proof
-\section{Learning Skills at Multi-levels of Granularity}
-\label{sec:append_gist}
-
-Implementations of the option framework share some common
-limitations. When proposing the option framework,
-\citename{sutton1999between} expected that learning at
-multi-level of temporal abstraction should be in favor of faster
-convergence and better exploration. On the contrary, significant
-improvements on single task environments have not been witnessed
-in most option
-implementations~\cite{klissarov2017learnings,smith2018inference,harb2018waiting,zhang2019dac}.
-To the best of our knowledge, SA is the first option
-implementation in which these properties are significantly
-witnessed but only on infinite horizon environments. In this
-section, we address this problem by first giving a theoretical
-explanation of why the value function is the main reason for this
-deficiency in section~\ref{sec:append_turkey} and how
-\textbf{deep wide value functions} could solve this problem. We
-then thoroughly explain the motivations of SA, and why it is a
-promising candidate for a deep wide framework, in
-section~\ref{sec:append_dwsa}. We also give a further explanation
-of how SA is connected to causality reinforcement learning
-literature and how a temporal causal reward can be used in
-objective to further solve this problem in
-section~\ref{sec:append_causal_rew}.
-
-\subsection{Problem Statement and Evidences}
-\label{sec:append_turkey}
-
-The expectation of improvements of the option framework on single
-task environment builds on an assumption that, by exploiting
-hierarchical action and state space, an agent's searching space
-can be greatly reduced thus accelerates learning and improving
-exploration. However, as reported in section~\ref{sec:exp_ext},
-most option frameworks including SA suffer from ``the dominant
-skill problem'' \cite{zhang2019dac} which prevents option
-frameworks from effectively learning hierarchy in action and
-state space as well as coordinating between skills.
-
-One root reason for this problem is that conventional value
-functions $V[S_t]$ and $Q[S_t,O_t,A_t]$ make values depend on
-temporal latent variables indistinguishable (i.e. Although
-different skills $o_1$ and $o_2$ results to different values,
-such as $V[S_t,O_{t-1}=o_1]=10$ and $V[S_t,O_{t-1}=o_2]=-10$.
-Because they arrive at the same state $S_t$, they have identical
-values under conventional value function $V[S_t]=0$). This
-deficiency makes option frameworks can only learn skills at very
-coarse level thus fail to exploit hierarchical information. The
-solution is to use a \textbf{deep wide value function}: enabling
-the framework to learn fine-grained skills at mutli-levels of
-granularity (deep) and making value functions depend on latent
-variables with longer (wide) dependencies (e.g. $V[S_t,O_{t-1}]$
-and $Q[S_t,O_t,A_t,O_{t-1}]$).
-
-To have a better understanding the importance of the deep wide
-value function, let us consider a simple environment which can be
-easily solved by $Q[s_t,a_t,a_{t-1}]$ but not $Q[s_t,a_t]$.
-
-Suppose we are training a robot which only has a camera sensor to
-cook thanksgiving turkey. In this setting there are only two
-states: $\sS=\{\text{Raw Turkey Image},\text{Cooked Turkey
-  Image}\}$. The robot's action space only consists of two
-actions: $\sA=\{\text{Stuff turkey},\text{Roast turkey}\}$. As
-for reward, if the robot roasted a stuffed turkey, then the
-reward is $10$. However, if the robot roasted an un-stuffed
-turkey, then the reward is $-10$. The $\text{stuff turkey}$
-action receives $0$ reward.
-
-The difficulty in this environment is, since the robot only has a
-camera to capture an image of the turkey, it can only observes
-either $\{\text{Raw Turkey Image}\}$ or $\{\text{Cooked Turkey
-  Image}\}$. There is no way to look inside the turkey and see if
-the turkey is stuffed. Under this setting, a robot can never
-learn to first stuff a turkey and then roast it because
-$Q[\text{Raw Turkey Image},\text{Stuff Turkey}] = Q[\text{Raw
-  Turkey Image},\text{Roast Turkey}] = 0$. Therefore, the robot
-can only randomly cook a turkey. However, this problem can be
-easily solved by using a deep wide value function
-$Q[S_t,A_t,A_{t-1}]$.
-
-The core problem in this setting is, action has no effect on
-states, it only affects rewards. At the first glance this is a
-Partially Observed MDP (POMDP) problem since the state of whether
-the turkey is stuffed is un-observed. This is true in all
-reinforcement learning settings without dependencies on latent
-variables. However, it goes much deeper in HRL settings.
-
-In HRL, a common formulation is to estimate a latent variable $O$
-to encode hierarchical information and makes the policy depends
-on it $P(A_t|S_t,O_t)$. Since $O$ is a latent variable, it is
-highly likely that at state $S_t$, different latent variable
-$P(A_t|S_t,O_t=o_x)$ and $P(A_t|S_t,O_t=o_y)$ emits the same
-action $A_t=A_1$, and thus makes the conventional value function
-indistinguishable between $o_x$ and $o_y$.
-
-This phenomenon is especially common around the switching time
-step of two skills: around switching point, states are usually
-compatible with both old and new skills. Conventional value
-functions will be especially confused at those moments. This is
-exactly what we observed in Figure~\ref{fig:skill_sequence}:
-overall, skill 2 is executed consistently. However, there are
-some random switches to skill 1. And the randomization is
-increased between around switching time steps. To explicitly show
-this, we visualized ``Run4'' into a video:
-$\text{https://www.youtube.com/watch?v=QiLVZvI6NJU}$. The skill
-selection is very random at the beginning of the episode as well
-as around the switching point (the 16th second). These are
-exactly the most confusing moments of conventional value
-functions. This is not a cherry-pick result but a common problem.
-Similar patterns can also be observed here
-$\text{https://youtu.be/xrfxbI3duBM?t=4}$ in a HumanoidStandUp
-environment.
-
-Due to the insufficiency of conventional value functions,
-compatible states have to be different enough to cause
-distinguishable values of value functions. Therefore, with
-conventional value functions, SA is only able to learn very
-coarse skills. For example, as shown in
-Figure~\ref{fig:interp_joint} and the video, the HalfCheetah
-agent is only able learn two skills: one is to run forward, one
-is to stand up when fall. However it is not able to learn more
-fine-grained skills such as jump forward and landing. This
-problem is not limited to SA, but is a common problem in HRL. The
-solution is to use deep wide value functions.
-
-\subsection{Motivations behind SA's Architecture}
-\label{sec:append_dwsa}
-
-SA is carefully designed to make the most out of deep wide value
-functions. Compared to other HRL frameworks, SA has following
-advantages: 
-
-\begin{enumerate}
-\item Stable and unbiased estimation: Thanks to
-  proposition~\ref{prop:var_unb} and \ref{prop:var_red}, the
-  higher the order of the MDPs, the smaller the variance will be.
-  The deep wide value functions stays unbiased estimations of
-  conventional value functions no matter how many dependencies
-  introduced. The current solution in option framework is a
-  biased estimation \cite{harb2018waiting} and adding
-  hyper-parameters to the framework.
-\item Easy to incorporate wide value functions: Incorporating a
-  deep wide value function is straightforward, SA's \textbf{skill
-    value upon arrival function} is already a wide function. The
-  \textbf{skill value function} and the \textbf{skill-action
-    value function} can be easily extended to wide function by
-  adding a first-order dependency on $\hat{O}_{t-1}$.
-\item Easy to incorporate deep value functions: SA is MDP
-  formulated, extending SA to multiple hierarchies is
-  straightforward.
-\item Scalability to long time dependencies: SA is MDP
-  formulated, adding more time dependencies is simply to change
-  the 1st-order MDP to higher-order MDPs while both value
-  functions and gradient theorems stay unchanged; SA is attention
-  based, SA can easily attends to thousand time steps without
-  adding any extra complexity to neither skill policy nor action
-  policy.
-\item Scalability to multiple hierarchies of skills: SA is
-  attention based and embedding based. Adding skills is as simple
-  as adding skill context matrix. In traditional option
-  frameworks \cite{riemer2018learning}, the number of option
-  (note that each option is a neural network) grows at $O(N^L)$
-  complexity of levels ($N$ is the number of options and $L$ is
-  the number of levels).
-\item Interpretability. As shown in section~\ref{sec:interpret},
-  skill context vectors learned under SA-based architectures are
-  straightforward to visualize and interpret. This property is
-  especially useful for investigating multi-level granularity
-  skills.
-\end{enumerate}
-
-\subsection{Causality Discovery Rewards}
-\label{sec:append_causal_rew}
-
-Although theoretically a DWSA can learn multi-level granularity
-skills, on-policy optimization algorithm is often insufficient
-for learning such models especially in sparse reward
-environments. However, SA has a natural connection with causal
-reinforcement learning thus can exploits causality as a reward in
-objective function to further facilitate fine grained skill
-discovery. In this section we explain how skill embedding vectors
-learned by SA encodes temporal causality relationships and how to
-use them to devise causal rewards.
-
-In causal reinforcement learning area, \citename{doshi2016hidden}
-proposed Hidden Parameters MDP (Hi-MDP) in which a skill vector
-like hidden parameter vector is introduced to learn abstract
-properties from environments. PEARL \cite{rakelly2019efficient}
-utilizes meta-learning framework to learn a skill representation
-that encodes abstract properties of a task and updates the
-framework in an off-policy manner to improve sample efficiency in
-transfer learning. \citename{killian2017robust} extended Hi-MDP
-by including the hidden parameter vector into transition
-probability function. \citename{perez2020generalized} further
-extended their work by proposing Generalized Hidden Parameter
-MDPs (GHP-MDPs), a causality discovery framework by including
-hidden parameter vector into both transition function and value
-function.
-
-GHP-MDPs is a special case of SA with number of skills $M=1$.
-When $M>1$, SA not only encodes causality relationships between
-environments and actions but also temporal causality between
-skills. Since the latent variable is modeled as a skill vector,
-the distance between different trajectories is straightforward to
-be calculated and thus can be used as a causal reward to
-encourage fine-grained and disentangled skills' discovery. To the
-best of our knowledge, SA is the first RL framework concerns
-causality in temporal abstraction sequences. We focus this paper
-on proposing SA, the causality rewarded SA will be discussed in
-future works.
-
-Another interesting understanding of SA is that, rather than an
-implementation of the option framework, SA can also be seen as a
-novel capsule network~\citename{kosiorek2019stacked} trained by
-policy gradient theorems. In Stacked Capsule Auto-Encoders (SCAE)
-\cite{kosiorek2019stacked}, a ``capsule'' vector encodes a
-different property (scale, orientation, etc.) of the visual
-object in each dimension. \citename{kosiorek2019stacked} proposed
-to delegate the complexity of part objects detection and
-part-to-whole objects aggregation by employing the attention
-mechanism \cite{lee2019set} on which a generative model is then
-built to further decode the whole-part relationships. This design
-choice abstracts the complexity of inference away from the
-decoder and largely simplified the designation of the generative
-model.
-
-In this paper, we follow their motivations of learning better
-representations and utilizing the attention mechanism to simplify
-the inference problem (sampling new skill without termination
-function). Moreover, the skill context vector is analogously to a
-capsule and the skill-action relationship is analogously to the
-whole-part relationship in the SCAE. Similar to SCAE utilizing
-the equi-variance property of the whole-part relationship to
-achieve computing efficiency and better performance, it will be
-very exciting to investigate potentially ``equi-variance'' or
-``invariance'' properties existed in skill-action relationships,
-which might give rise to a novel causal inference architecture in
-the reinforcement learning area.
-
-\section{Experiments Results}
-\label{sec:append_exp}
-\subsection{Performance}
-\label{sec:append_exp_perf}
-
-In this section we provide results for all ten OpenAI Gym Mujoco
-Environments. Those environments can be classified into two categories:
-infinite horizon environments (i.e., HalfCheetah, Swimmer,
-HumanoidStandup and Reacher) and finite horizon environments (the
-other).
-\begin{figure*}[thb]
-  \centering
-  \includegraphics[width=1\linewidth]{./Part1/figures/all_exps.png}\\
-  \caption{\label{fig:all_tasks} Performance of Ten OpenAI Gym
-    MuJoCo Environments.}
-\end{figure*}
-
-\begin{table*}[]
-\caption{Performance of Infinite Horizon Environments}
-\label{table:single_infinite}
-\vskip 0.15in
-\begin{center}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
-        & HalfCheetah        & Swimmer           & HumanoidStandup     & Reacher          \\ \hline
-PPO     & 2143.6                & 59.9                 & 62262.2                & -7.5                \\ \hline
-DAC+PPO & 1830.1                & 85.0                 & 38954.9                & -8.1                \\ \hline
-AHP+PPO & 1701.7                & 86.7                 & 38684.9                & -7.3                \\ \hline
-PPOC    & 1441.2                & 43.6                 & 39841.7                & -9.4                \\ \hline
-OC      & 832.3                 & 33.0                 & 52352.7                & -15.3               \\ \hline
-SA+PPO  & {\ul \textbf{3446.7}} & {\ul \textbf{107.8}} & {\ul \textbf{91654.5}} & {\ul \textbf{-4.6}} \\ \hline
-\end{tabular}
-\end{center}
-\vskip -0.1in
-\end{table*}
-
-\begin{table*}[]
-\caption{Performance of Finite Horizon Environments}
-\label{table:single_finite}
-\vskip 0.15in
-\begin{center}
-\begin{tabular}{|l|l|l|l|l|l|l|}
-\hline
-        & Walker2d           & Hopper             & InvertedPendulum  & InvertedDoublePendulum & Ant                & Humanoid          \\ \hline
-PPO     & 1512.5                & 1489.9                & 939.9                & 7112.6                    & 1049.6                & 562.1                \\ \hline
-DAC+PPO & {\ul \textbf{1968.0}} & 1702.2                & {\ul \textbf{943.7}} & 5804.5                    & 985.8                 & 487.6                \\ \hline
-AHP+PPO & 1520.6                & {\ul \textbf{1993.6}} & 940.0                & {\ul \textbf{7120.7}}     & {\ul \textbf{1359.3}} & {\ul \textbf{569.3}} \\ \hline
-PPOC    & 756.1                 & 1308.1                & 936.2                & 7117.6                    & 429.4                 & 483.9                \\ \hline
-OC      & 391.9                 & 487.6                 & 207.1                & 2369.4                    & 433.4                 & 475.1                \\ \hline
-SA+PPO  & 1856.9                & 1955.3                & 906.5                & 6884.1                    & 907.4                 & 528.7                \\ \hline
-\end{tabular}
-\end{center}
-\vskip -0.1in
-\end{table*}
-
-\newpage
-\subsection{Temporal Extension}
-\label{sec:append_exp_ext}
-
-In Figure~\ref{fig:duration}, we plot the average duration of
-each skill during 430 training episodes (each episode contains a
-trajectory of 512 time steps) of the HalfCheetah environment. In this
-environment, the agent learns to run half of a Cheetah by controlling 6
-joints: back thigh, back shin, back foot, front thigh, front
-shin, and front foot. The faster the Cheetah runs forward, the
-higher return it gets from the environment. At the start of
-training, all skills' durations are short. After the $100$-th
-episode, Skill 2's duration quickly grows and dominates the
-entire episode. The dominant skill phenomenon is also reported in
-other option implementations such as DAC. One explanation for
-this domination phenomenon is that for some single task environments,
-primitive actions might be enough to express the optimal policy,
-in which case extra levels of abstraction (skills) become
-overhead. However, because the duration of dominant skill starts
-to fall at the end of training and SA significantly outperforms
-PPO which only employs primary actions, these facts indicate that
-SA has a better capability of automatically discovering abstract
-actions from primary actions as well as coordinating between
-them.
-\begin{figure*}[thb]
-  \centering
-  \includegraphics[width=0.7\linewidth]{./Part1/figures/duration.png}\\
-  \caption{\label{fig:duration} Duration of 4 options during 430
-    training episodes of HalfCheetah.}
-\end{figure*}
-
-To illustrate how SA coordinates
-skills, we take the HalfCheetah model trained after 1 million
-steps and independently run it 4 times (4 episodes. each episode
-contains 512 time steps). Skill activation sequences of 4 runs
-are then plotted in Figure~\ref{fig:option_pattern}.
-\begin{figure*}[thb]
-  \centering
-  \includegraphics[width=0.7\linewidth]{./Part1/figures/option_pattern.png}\\
-  \caption{\label{fig:option_pattern} Activated option sequences
-    of 4 independent HalfCheetah runs.}
-\end{figure*}
-As we can see that there are some common patterns between all 4
-independent runs. For example, all runs start with Skill 0 and
-use Skill 1 at the early stage. After executing Skill 1 for a
-short period, they all switch to Skill 2 which has longest
-durations in all 4 runs. From time to time they will fall back to
-Skill 1 for short periods and quickly switch to Skill 2 again.
-This pattern of coordination indicates that Skill 1 and Skill 2
-have completely different functionality and SA has the capability
-of automatically discovering as well as leveraging those
-skills.
-
-\subsection{Interpretation of Skill Context Vectors}
-\label{sec:append_interpret}
-
-In this section we continue with the HalfCheetah model used in
-Section~\ref{sec:append_exp_ext} and demonstrate how to interpret
-skill context vectors as well as skill activation sequences
-(Figure \ref{fig:option_pattern}). In HalfCheetah, the agent
-learns to run half of a Cheetah by controlling 6 joints: back
-thigh, back shin, back foot, front thigh, front shin, and front
-foot. The faster the Cheetah runs forward, the higher return it
-gets from the environment. We interpret skill context vectors and
-activation patterns by first inspecting what property each
-dimension of the skill context vector encodes (Figure
-\ref{fig:first_dim_perturb}). Once each dimension is understood,
-skills (Figure \ref{fig:all_skill_vectors}) become straight
-forward to interpret by simply inspecting on which dimension
-(property) they have the most significant weights (Figure
-\ref{fig:interp_skill}). These interpretations can further be
-taken to explain skill activation patterns in Figure
-\ref{fig:option_pattern}.
-\begin{figure*}[thb]
-  \centering
-  \includegraphics[width=1\linewidth]{./Part1/figures/all_skill_vectors.png}\\
-  \caption{\label{fig:all_skill_vectors} Heatmap of all 4 skill
-    context vectors}
-\end{figure*}
-
-As the first step, we follow \citename{sabour2017dynamic} to
-interpret what property each dimension of the skill context
-vector in Figure~\ref{fig:all_skill_vectors} encodes by
-perturbing each dimension and decode perturbed skill context
-vectors into primary actions. Specifically, we perturb one
-dimension by adding a range of perturbations $[{-0.1}, 0.09]$ by
-intervals of $0.01$ onto it while keep the other dimensions
-fixed. After perturbation, each skill context vector dimension
-has $20$ perturbed vectors. We then use the action policy decoder
-to decode all those vectors into primary actions and see how the
-perturbation affects the primary action. As an illustration, we
-plot Dimension 0's all $20$ perturbed results in Figure
-\ref{fig:first_dim_perturb}.
-\begin{figure*}[thb]
-  \centering
-  \includegraphics[width=1\linewidth]{./Part1/figures/skill_heatmap.png}\\
-  \caption{\label{fig:first_dim_perturb} Perturbation on the
-    Dim 0}
-\end{figure*}
-
-With visualization of perturbation results in hand, we can
-interpret what property each dimension encode by inspecting
-relationships between perturbations and primary actions. In
-Figure \ref{fig:first_dim_perturb}, as an example, it is clear
-that changes on Dim $0$ has opposite effect on the back leg and
-front leg: a larger value on Dim $0$ will assign the back leg a
-larger torque while the front leg a smaller one, and vice versa.
-This means Dim $0$ is has a focus point property: it focuses
-torque on only one leg.
-
-Once we know how to interpret one dimension, we can move on to
-interpret the whole skill context vector. Since Skill $1$ and
-Skill $2$ are two main skills employed in
-Figure~\ref{fig:option_pattern}, here we provide an example of
-how to interpret them. Figure~\ref{fig:all_skill_vectors} shows
-that Skill $1$ has significant values on dimension $11$, $15$ and
-$22$. Skill $2$ is significant on dimension $2$, $5$ and $36$. We
-demonstrate these dimensions in the same manner as
-Figure~\ref{fig:first_dim_perturb} below:
-\begin{figure*}[thb]
-  \centering
-  \includegraphics[width=1\linewidth]{./Part1/figures/interp_2_skills.png}\\
-  \caption{\label{fig:interp_skill} Interpretation of Skill 1
-    and Skill 2}
-\end{figure*}
-
-Subfigures in Figure~\ref{fig:interp_skill} can be interpreted in
-the same manner as Figure~\ref{fig:first_dim_perturb}. As an
-example, from Figure~\ref{fig:all_skill_vectors} we can see that
-Skill $1$ has a significant small value on Dim $11$. In
-Figure~\ref{fig:interp_skill}, it shows that a smaller Dim $11$
-will twist the front leg forward and back foot forward while
-twist back thigh, back shin backward. Composition of these
-movements is a back leg landing property. Similarly, we can
-interpret that Dim $15$ is a front leg landing property and Dim
-$22$ is a balancing property. Therefore, Skill $1$ is focusing on
-landing from all positions.
-
-Unlike other skill context vectors which have apparent focusing
-dimensions, Skill $2$ has a rather balanced skill context vector.
-It has no apparently dominant dimension. It only has slightly
-more significant values on Dim $2$, $5$, $36$, which are focusing
-on jumping and running properties. Therefore, Skill $2$ is more
-like an ``all-weather'' skill: it is a skill having very balanced
-properties with a slightly demonstration on running and jumping.
-
-Interpretations of Skill $1$ and $2$ above can then be taken to
-understand skill activation patterns in
-Figure~\ref{fig:option_pattern}: as an all-weather skill, Skill
-$2$ is the most frequently executed one and has the longest
-duration. From time to time, when the Cheetah needs to land and
-balance itself, Skill $1$ will be executed. However, since
-landing skill does not provide power of moving forward and thus
-has lower returns to continue, once the body is balanced the
-Cheetah will quickly stop Skill $1$'s execution and keep running
-with Skill $2$.
-
-\subsection{Transfer Learning Results}
-\label{sec:append_transfer}
-
-\begin{table*}[h]
-\caption{Performance of Deepmind Control Suite Transfer Learning Environments}
-\label{table:transfer}
-\begin{center}
-\begin{tabular}{|l|l|l|l|l|l|l|}
-\hline
-        & CartPole             & Reacher              & Cheetah              & Fish                 & Walker1              & Walker2              \\ \hline
-PPO     & 829.7                & 327.6                & 73.0                 & 287.9                & 231.8                & 72.2                 \\ \hline
-DAC+PPO & 970.8                & 517.2                & 211.2                & 505.4                & {\ul \textbf{590.3}} & 360.5                \\ \hline
-AHP+PPO & 966.5                & 395.2                & 167.4                & 357.9                & 362.1                & 143.2                \\ \hline
-PPOC    & 942.1                & 400.1                & 72.7                 & 336.7                & 236.6                & 80.9                 \\ \hline
-OC      & 106.1                & 19.4                 & 100.6                & 286.6                & 356.3                & 238.7                \\ \hline
-SA+PPO  & {\ul \textbf{974.1}} & {\ul \textbf{675.3}} & {\ul \textbf{233.8}} & {\ul \textbf{562.1}} & 473.8                & {\ul \textbf{403.0}} \\ \hline
-\end{tabular}
-\end{center}
-\end{table*}
-
 \section{MDP Equivalence to the SMDP Option Framework}
 \label{sec:appen_oc_pgm}
 
-In this section, we show that the the conventional Semi-Markov
+In this section, we prove that the the conventional Semi-Markov
 Decision Problem (SMDP) option framework which employs Markovian
 options actually has an MDP equivalence. We first follow
 \citename{bishop2006pattern}'s method and formulate the dynamics
@@ -1376,8 +567,16 @@ function.
 
 From now on, we will continue derivations with conditonal
 independence relationships encoded in PGM (Chapter 8.2.1
-\cite{bishop2006pattern}). We have following conditional
-independence relationships from PGM (figure~\ref{fig:oc_pgm}):
+\cite{bishop2006pattern}). Following
+\citename{bishop2006pattern}'s notation, we use $A$, $B$ and $C$
+to denote three non-overlapping sets of arbitrarily many random
+variables. Sets $A$ and $B$ are conditional independent on set
+$C$ if $P(A,B|C)=P(A|C)P(B|C)$, denoted as $A\bigCI B \;|\; C$.
+We mainly use head-to-tail conditional independence properties
+(Chapter 8.2.1 \cite{bishop2006pattern}) in this section. We have
+following conditional independence relationships from PGM
+(figure~\ref{fig:oc_pgm}):
+
 
 \begin{align}
 \label{eq:c1}  \{R_{t+2},G_{t+1}\}&\bigCI \{\rvb_{t+1}\} &|\;&\{\rvo_{t+1}\},\\
@@ -1405,11 +604,9 @@ formulation\cite{sutton1999between,bacon2017option}.
 \begin{proof}
 \begin{align*}
   Q_U[\rvo_t, \rvs_t,\rva_t] = &\E[G_t|\rvo_t, \rvs_t,\rva_t] &\text{\;} \\
-  = &\E[R_{t+1}+\gamma G_{t+1}|\rvo_t, \rvs_t,\rva_t] & \text{by definition of $G_t$}\\
-  =&\E[R_{t+1}|\rvs_t,\rva_t] +&\text{use eq~(\ref{eq:c5})} \\
-                               &\gamma\sum_{G_{t+1}}G_{t+1}\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rvo_t,\rva_t)P(G_{t+1}|\rvs_{t+1},\rvo_t,\rvs_t,\rva_t)\\
-  =&r(\rvs_t,\rva_t)+\\
-                               &\gamma\sum_{G_{t+1}}G_{t+1}\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)P(G_{t+1}|\rvs_{t+1},\rvo_t) &\text{use eq~\ref{eq:c2}~\ref{eq:c3} and ~\ref{eq:c5}}\\
+  = &\E[R_{t+1}+\gamma G_{t+1}|\rvo_t, \rvs_t,\rva_t] \\
+  =&\E[R_{t+1}|\rvs_t,\rva_t]+\gamma\sum_{G_{t+1}}G_{t+1}\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rvo_t,\rva_t)P(G_{t+1}|\rvs_{t+1},\rvo_t,\rvs_t,\rva_t)\\
+  =&r(\rvs_t,\rva_t)+\gamma\sum_{G_{t+1}}G_{t+1}\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)P(G_{t+1}|\rvs_{t+1},\rvo_t)\\
   =&r(\rvs_t,\rva_t)+\gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)\E[ G_{t+1}|\rvs_{t+1},\rvo_t ]\\
   =&r(\rvs_t,\rva_t)+\gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)U[\rvs_{t+1},\rvo_t].
 \end{align*}
@@ -1555,40 +752,204 @@ in derivations below.
   \end{align*}
   
 \end{proof}
-\newpage
-\section{Derivations of the Skill-Action architecture's value
-  functions}
-\label{sec:appen_sa_v_proof}
 
-Following \citename{bishop2006pattern}'s notation, we use $A$,
-$B$ and $C$ to denote three non-overlapping sets of arbitrarily
-many random variables. Sets $A$ and $B$ are conditional
-independent on set $C$ if $P(A,B|C)=P(A|C)P(B|C)$, denoted as
-$A\bigCI B \;|\; C$. We mainly use head-to-tail conditional
-independence properties (Chapter 8.2.1 \cite{bishop2006pattern})
-in this section.
+\subsection{Summary}
+\label{sec:equiva_conc}
+In this previous sections, we prove that an MDP equivalence to
+the SMDP. Briefly, we propose a novel MDP ``mixture master
+policy'' (\Secref{sec:appen_hmm}). Unlike the conventional SMDP
+master policy that only depends on the current state, the mixture
+master policy has extra dependencies on the termination function
+and the previously activated option. We then prove that the MDP
+has identical optimal properties with the SMDP option framework
+\cite{sutton1999between} and identical policy gradients with the
+option-critic architecture \cite{bacon2017option}. We summarize
+our results as the following theorem:
 
-Derivations of Eq.~(\ref{eq:sa_v}):
+\begin{thm}
+  \label{theo:smdp_mdp}
+  The SMDP formulated option framework, which employs Markovian
+  options, has an underlying MDP equivalence.
+\end{thm}
+\begin{prop}
+  \label{prop:opt}
+  The MDP formulation has identical optimality (value functions)
+  with the SMDP option framework~\cite{sutton1999between}.
+\end{prop}
+\begin{prop}
+  \label{prop:pg}
+  The MDP formulation has identical policy gradients with the
+  option-critic architecture~\cite{bacon2017option}.
+\end{prop}
+
+\section{The Skill-Action Architecture}
+\label{sec:sa}
+
+In this section, we propose a simple
+MDP~\cite{puterman2014markov} implementation of the option
+framework: the Skill-Action (SA) architecture. Although the
+mixture master policy (Eq.~\ref{eq:oc_po}) is MDP formulated, the
+master policy's (Eq.~\ref{eq:oc_master}) gradients are
+still blocked by its dependency on the termination function. To
+overcome this, we present a marginalized derivation of the
+equivalence: the Skill-Action (SA) architecture. SA marginalizes
+the termination function away and models the marginalized policy
+(Eq.~\ref{eq:oc_oso_p}) directly with a ``skill policy''
+(Eq.~\ref{eq:sa_o_p}), which is used to replace both the master
+policy and termination function while implements their
+functionalities with the attention
+mechanism~\cite{vaswani2017attention}. Section~\ref{sec:sa_PGM}
+describes the dynamics (Markov process) of SA.
+Section~\ref{sec:sa_mdp} defines value functions on top of the
+dynamics, thus formulating the MDP. Policy gradient theorems are
+then derived. Section~\ref{sec:net_arch} implements SA by
+employing neural networks and the Multi-Head Attention
+mechanism~\cite{vaswani2017attention}, which enables SA to
+temporally extend skills in the absence of the termination
+function.
+
+
+\subsection{Dynamics of the Skill-Action Architecture}
+\label{sec:sa_PGM}
+
+\begin{figure*}[thb]
+  \centering
+  \begin{tabular}{cc}
+    \includegraphics[width=0.45\linewidth]{./Part1/figures/doe.png}&
+                                                              \includegraphics[width=0.45\linewidth]{./Part1/figures/sa_attn_net.png}\\
+    {\small (a) PGM of SA}&
+                            {\small (b) Network
+                            Architecture of SA}\\
+   
+  \end{tabular}
+  \caption{\label{fig:sa_net} The Skill-Action (SA) Architecture}
+\end{figure*}
+
+In this section, we define the dynamics (Markov process) of SA.
+We first introduce MDP notations. A Markov decision process
+$M=\{\sS,\sA,r,P,\gamma\}$ consists of a state space $\sS$, an
+action space $\sA$, a state transition function
+$P(\rvs_{t+1}|\rvs_t): \sS\rightarrow\sS$, a reward function
+$r(\rvs,\rva):\sS\times\sA\rightarrow\sR$, and a discount factor
+$\gamma\in\sR$. A policy $\pi=P(\rva|\rvs):\sS\rightarrow \sA$ is
+a probability distribution defined over actions conditioning on
+states. An expected discounted return is defined as $G_t =
+\sum_k^N\gamma^kR_{t+k+1}$, where $R\in\sR$ is the actual reward
+received from the environment. The value function
+$V[\rvs_t]=\E_{\pi}[G_t|\rvs_t]$ is the expected return starting
+at state $\rvs_t$ and following policy $\pi$ thereafter. The
+action-value function is defined as $Q[\rvs_t,\rva_t]=
+\E_{\tau_\pi}[G_t|\rvs_t,\rva_t]$. An Markov decision process
+together with value functions defined on it are referred to as an
+MDP~\cite{puterman2014markov}.
+
+Having defined notations of MDP, we propose the dynamics of SA.
+Specifically, a \textbf{skill index vector} $\rvo\in\sZ^M_2$ is
+an $M$-dimensional one-hot vector, where $M$ denotes the total
+number of skills to learn. Each entry $\ro\in\{0,1\}$ is a binary
+random variable. $\ro_i=1$ means that the $i$-th skill is
+activated. A \textbf{skill context matrix}
+\cite{kosiorek2019stacked} $\mW_S\in \sR^{M\times E}$ is a
+learnable parameter containing $M$ rows of $E$ dimensional real
+vectors, the $i$-th row of $\mW_S$ corresponds to the $i$-th
+skill $\ro_i$, and different columns encode different properties
+of a skill. A \textbf{skill context vector} $\hat{\rvo}_t$ is
+defined as:
+\begin{equation}
+  \label{eq:sa_skill_vector}
+  \hat{\rvo}_t=\mW_S^{T}\cdot\rvo_t, \;\hat{\rvo}_t\in \sR^{E}.
+\end{equation}
+The \textbf{skill policy} is defined as:
+\begin{equation}
+  \label{eq:sa_o_p}
+  P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1};\mW_s): \sS\times\sR^{E} \rightarrow \sR^{E},
+\end{equation}
+% todo: explain the functionality of P(o); what's the motivation;
+% how is it implemented; advantages; contributions
+which is a probability distribution over skill context vector
+$\hat{\rvo}_{t}$ conditioned on state $\rvs_t$ and previous
+sampled skill context vector $\hat{\rvo}_{t-1}$, with $\mW_S$ as
+its learnable parameters.
+
+The \textbf{action policy} is defined as:
+\begin{equation}
+  \label{eq:sa_a_p}
+  P(\rva_t|\rvs_t,\hat{\rvo}_t): \sS\times\sR^E\rightarrow\sA,
+\end{equation}
+which is a probability distribution over the action random
+variable $\rva_t\in\sA$ conditioned on the skill context vector
+$\hat{\rvo}_t$ and state $\rvs_t$, and decodes them into primary
+actions.
+
+With both skill and action policies in hand, the dynamics of the
+SA are defined as a Probabilistic Graphical Model
+(PGM)~\cite{koller2009probabilistic} (Figure~\ref{fig:sa_net}
+(a)):
+\begin{align}
+  \label{eq:sa_pgm_joint}
+  \nonumber  P(\tau) = &P(\rvs_0)P(\hat{\rvo}_0)P(\rva_0|\rvs_0,\hat{\rvo}_0)\\
+                       &\prod_{t=1}^\infty P(\rvs_t|\rvs_{t-1},\rva_{t-1})P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1})P(\rva_{t}|\rvs_{t},\hat{\rvo}_{t}),
+\end{align}
+where
+$P(\tau)=P(\rvs_0,\hat{\rvo}_0,\rva_0,\rvs_1,\hat{\rvo}_1,\rva_1,\ldots)$
+denotes the joint distribution of the PGM. Note that under this
+formulation, $P(\tau)$ is actually an Hidden Markov Model (HMM)
+with $\rvs_t$, $\rva_t$ as observable random variables and
+$\hat{\rvo}_t$ as latent variables.
+
+\subsection{MDP of the Skill-Action Architecture}
+\label{sec:sa_mdp}
+
+With SA's dynamics in hand, in this section, we first propose a
+novel ``skill value upon arrival function'' and theoretically
+prove that it has a smaller variance than the conventional value
+function. This property is empirically justified in
+Section~\ref{sec:exp_perf} and further discussed in
+\Secref{sec:append_gist}. Then, we derive the recursive
+formulation of value functions and formulate the MDP. Based on
+the MDP, skill and action policies' gradients theorems are
+finally derived.
+
+Rather than use the conventional value function $V[\rvs_t]$, we
+define the \textbf{skill value upon arrival function}
+$V[\rvs_t,\hat{\rvo}_{t-1}]$ as:
+\begin{equation}
+  \label{eq:sa_v}
+  V[\rvs_t,\hat{\rvo}_{t-1}]=\E[G_t|\rvs_t,\hat{\rvo}_{t-1}]= \sum_{\hat{\rvo}_t}P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1})Q_O[ \rvs_t,\hat{\rvo}_t].
+\end{equation}
+
+\begin{proof}
+  Derivations of Eq.~(\ref{eq:sa_v}):
+%
 \begin{align*}
   V[\rvs_t,\hat{\rvo}_{t-1}]=&\E[G_t|\rvs_t,\hat{\rvo}_{t-1}]\\
   =& \sum_{\hat{\rvo}_t}P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1})\E(G_t|\rvs_t,\hat{\rvo}_t,\hat{\rvo}_{t-1})\\
   =& \sum_{\hat{\rvo}_t}P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1})\E[ G_t|\rvs_t,\hat{\rvo}_t ]\\
   =& \sum_{\hat{\rvo}_t}P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1})Q_O[ \hat{\rvo}_t,\rvs_t],
 \end{align*}
+%
+where from line 2 to line 3 we use the conditional independence
+property in PGM that
+$G_t\bigCI\hat{\rvo}_{t-1}|\{\rvs_t,\hat{\rvo}_t\}$.
+\end{proof}
 
-~where from line 2 to line 3 we use the conditional independence
-property in PGM that $G_t\bigCI\hat{\rvo}_{t-1}|\{\rvs_t,\hat{\rvo}_t\}$.
+\begin{prop}
+  \label{prop:var_unb}
+  $V[ \rvs_t,\hat{\rvo}_{t-1} ]$ is an unbiased estimation of $V[ \rvs_t ]$.
+\end{prop}
 \begin{proof}
- for Proposition~\ref{prop:var_unb}: By law of total expectation:
-
+  By law of total expectation:
   $$\E_{\hat{\rvo}_{t-1}}[V[\rvs_t,\hat{\rvo}_{t-1}]]=\E_{\hat{\rvo}_{t-1}}[\E[G_t|\rvs_t,\hat{\rvo}_{t-1}]]=\E[G_t|\rvs_t] = V[\rvs_t]$$
-
+%
 thus $V[\rvs_t,\hat{\rvo}_{t-1}]$ is an unbiased estimator of $V[\rvs_t]$.
 \end{proof}
 
+\begin{prop}
+  \label{prop:var_red}
+  The variance of $V[ \rvs_t,\hat{\rvo}_{t-1} ]$ is less than or equal to $V[ \rvs_t ]$.
+\end{prop}
 \begin{proof}
-  for Proposition~\ref{prop:var_red}: By law of total conditional
-  variance:
+  By law of total conditional variance:
 \begin{align*}
   \text{Var}(V[\rvs_t]) &= \text{Var}([\E[G_t|\rvs_t]]) =\E[\text{Var}(\E[G_t|\rvs_t,\hat{\rvo}_{t-1}])|\rvs_t]+\text{Var}(\E[\E[G_t|\rvs_t,\hat{\rvo}_{t-1}]]|\rvs_t)\\
                         &= \E[\text{Var}(V[\rvs_t,\hat{\rvo}_{t-1}])|\rvs_t]+\text{Var}(\E[V[\rvs_t,\hat{\rvo}_{t-1}]]|\rvs_t)\\
@@ -1596,30 +957,58 @@ thus $V[\rvs_t,\hat{\rvo}_{t-1}]$ is an unbiased estimator of $V[\rvs_t]$.
 \end{align*}
 \end{proof}
 
-Derivations of Eq.~(\ref{eq:sa_q_a})
-\begin{align*}
+Eq.~(\ref{eq:sa_v}) states that the skill value function upon
+arrival is an expectation over skill value function
+$Q_O[\rvs_t,\hat{\rvo}_{t}]$ conditioned on previous skill
+$\hat{\rvo}_{t-1}$. The \textbf{skill value function}
+$Q_O[\rvs_t,\hat{\rvo}_{t}]$ is defined as:
+\begin{align}
+  Q_O[\rvs_t,\hat{\rvo}_{t}]=\E[G_t|\rvs_t,\hat{\rvo}_{t}]
+  \label{eq:sa_q_o}=\sum_{\rva_t}P(\rva_t|\rvs_t,\hat{\rvo}_{t})Q_A[ \rvs_t,\hat{\rvo}_t,\rva_t],
+\end{align}
+and the \textbf{skill-action value function} $Q_A[
+\rvs_t,\hat{\rvo}_t,\rva_t]$ is defined as:
+\begin{align}
+\label{eq:sa_q_a}
+Q_A[ \rvs_t,\hat{\rvo}_t,\rva_t]&=\E[G_t| \rvs_t,\hat{\rvo}_t,\rva_t]\nonumber\\
+   &= r(s,a) + \gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)V[\rvs_{t+1},\hat{\rvo}_t],
+\end{align}
+%
+where $\gamma \in \sR$ is a discounting factor.
+\begin{proof}
+  \begin{align*}
   Q_A[ \rvs_t,\hat{\rvo}_t,\rva_t]=&\E[G_t| \rvs_t,\hat{\rvo}_t,\rva_t]
                                =\E[R_{t+1}+\gamma G_{t+1}| \rvs_t,\hat{\rvo}_t,\rva_t]\\
   =& r(s,o,a) + \gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\hat{\rvo}_t,\rva_t)\E[G_{t+1}|\rvs_{t+1},\rvs_t,\hat{\rvo}_t,\rva_t]\\
   =& r(s,a) + \gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)\E[G_{t+1}|\rvs_{t+1},\hat{\rvo}_t]\\
   =& r(s,a) + \gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)V[\rvs_{t+1},\hat{\rvo}_t],
 \end{align*}
-
-~where from line 2 to line 3 we use the conditional independence
+%
+where from line 2 to line 3 we use the conditional independence
 property in PGM that $R_{t+1}\bigCI\hat{\rvo}_{t}|\rva_t$,
 $G_{t+1}\bigCI\rvs_{t}|\{\rvs_{t+1},\hat{\rvo}_t\}$ and
 $G_{t+1}\bigCI\rva_{t}|\rvs_{t+1}$. $\gamma \in \sR$ is a
 discounting factor.
+\end{proof}
 
+Expanding (Eq.~\ref{eq:sa_q_a}) with (Eq.~\ref{eq:sa_v}) gives us
+a recursion formulation from which Bellman equations and policy
+gradient theorems are derived. To keep notations uncluttered, we
+use $\theta_o$ to denote skill policy's parameters
+(Eq.~\ref{eq:sa_o_p}) and $\theta_a$ to denote action policy's
+parameters (Eq.~\ref{eq:sa_a_p}). The skill and action policies'
+gradient theorems are:
+\begin{thm}
+  \textbf{ Skill Policy Gradient Theorem: } Given a stochastic skill policy
+  differentiable in its parameter vector $\theta_o$, the gradient
+  of the expected discounted return with respect to $\theta_o$ is:
+  \begin{equation}
+    \label{eq:sa_o_grad}
+    \frac{\partial V[\rvs_t,\hat{\rvo}_{t-1}]}{\partial \theta_o}=\E[\;\frac{\partial P(\hat{\rvo}'|\rvs',\hat{\rvo})}{\partial \theta_o}Q_O[\rvs',\hat{\rvo}']\;|\;\rvs_t,\hat{\rvo}_{t-1}],
+  \end{equation}
+  ~where $\hat{\rvo}'$ is one time step later than $\hat{\rvo}$.
 
-\section{Proofs for the Skill-Action architecture gradient
-  theorems}
-\label{sec:appen_sa_proof}
-
-\subsection{Proof for the skill policy gradient theorem}
-\label{sec:appen_sa_o_grad}
-
-\begin{proof}
+  \begin{proof}
     \begin{align*}
       \frac{\partial Q_O[\rvs_t,\hat{\rvo}_t]}{ \partial \theta_o }=& \sum_{\rva_t}P(\rva_t|\rvs_t,\hat{\rvo}_t)\big[r(s,a) + \gamma\sum_{\rvs_{t+1}}P(\rvs_{t+1}|\rvs_t,\rva_t)\frac{\partial V[\rvs_{t+1},\hat{\rvo}_t]}{\partial \theta_o}\big]\\
       =&\sum_{\rvs_{t+1}}\gamma P(\rvs_{t+1}|\rvs_t,\hat{\rvo}_t)\frac{\partial V[\rvs_{t+1},\hat{\rvo}_t]}{\partial \theta_o}\\
@@ -1631,9 +1020,17 @@ discounting factor.
       =&\E[\;\frac{\partial P(\rvo'|\rvs',\rvo)}{\partial \theta_o}Q_O[\rvs',\rvo']\;|\;\rvs_t,\hat{\rvo}_{t-1}].
   \end{align*}
 \end{proof}
-\subsection{Proof for the action policy gradient theorem}
-\label{sec:appen_sa_a_grad}
+\end{thm}
 
+
+\begin{thm}
+  \textbf{ Action Policy Gradient Theorem: } Given a stochastic action policy
+  differentiable in its parameter vector $\theta_a$, the gradient
+  of the expected discounted return with respect to $\theta_a$ is:
+  \begin{equation}
+    \label{eq:sa_a_grad}
+      \frac{\partial Q_O[\rvs_t,\hat{\rvo}_t]}{ \partial \theta_a }=\E[\;\frac{\partial P(\rva|\rvs,\hat{\rvo})}{\partial \theta_a}Q_A[ \rvs,\hat{\rvo},\rva]\; | \; \rvs_t,\hat{\rvo}_t].
+  \end{equation}
 \begin{proof} Similar to the first equation above, continue expanding
   gradients of $\frac{\partial Q_O}{\partial \theta_a}$ by
   equations~(\ref{eq:sa_v})~(\ref{eq:sa_q_o}) and
@@ -1646,13 +1043,122 @@ discounting factor.
       =&\E[\;\frac{\partial P(\rva_{t+k}|\rvs_{t+k},\hat{\rvo}_{t+k})}{\partial \theta_a}Q_A[ \rvs_{t+k},\hat{\rvo}_{t+k},\rva_{t+k}]\; | \; \rvs_t,\hat{\rvo}_t].
   \end{align*}
 \end{proof}
+\end{thm}
 
-\newpage
-\section{Learning Algorithm for the Skill-Action
-  architecture}
-\label{sec:append_algo}
 
-\DontPrintSemicolon
+% towrite:
+%As conventional option frameworks, the action policy can also be
+%composed of $M$ action policies, in which case all of our
+%theorems still hold. However, 
+
+Compared to MDP formulated algorithms, SMDP option frameworks are
+sample inefficient and notoriously unstable to
+hyperparameters~\cite{zhang2019dac}. The skill and action
+policies' gradient theorems enable SA to be compatible with both
+MDP on-policy and off-policy algorithms, and thus has much better
+stability and convergence. This work is focused on deriving MDPs
+of SA and its policy gradient theorems. To be comparable with
+previous work \cite{zhang2019dac}, in this paper we directly
+apply PPO~\cite{schulman2017proximal} to our learning algorithm
+(Algorithm~\ref{alg:sa}). Recent work \cite{wulfmeier2020data}
+shows that the off-policy algorithm gives a performance boost to
+option variants. Designing off-policy algorithms for SA remains
+open for future work.
+
+
+\subsection{Networks Architecture}
+\label{sec:net_arch}
+After deriving the MDP of SA, we present a simple neural network
+implementation of the Skill-Action Architecture
+(Figure~\ref{fig:sa_net}). Unlike the conventional SMDP option
+framework, which employs a termination function and an SMDP
+master policy to temporally extend the execution of an option, SA
+implements the temporal extension functionality by employing the
+Multi-Head Attention (MHA) mechanism~\cite{vaswani2017attention}.
+
+Specifically, an attention mechanism is described as the mapping
+from a query $\rvq\in\sR^{E}$ and a set of key-value pairs, i.e.,
+$\mK\in\sR^{M\times E}$ and $\mV\in\sR^{M\times E}$ ($M$ and $E$
+are total number of skills and embedding dimensions defined in
+section~\ref{sec:sa_PGM}), to an output:
+\begin{equation}
+  \label{eq:sa_net_attn}
+Attention(\rvq,\mK,\mV) = \text{softmax}(\frac{\rvq\mK^T}{\sqrt{E}})\mV
+\end{equation}
+A Multi-Head Attention $\text{MHA}(\rvq,\mK,\mV)$ is a linear
+projection of $\rh$ (number of heads) concatenated linearly
+projected $Attention$ outputs:
+\begin{align}
+  \label{sa:sa_net_mha}
+  \text{MHA}(\rvq,\mK,\mV) &= \text{Concat}[\text{head}_1,\ldots,\text{head}_h]\mW^H\\
+  \nonumber \text{where head}_i &= Attention(\rvq\mW_i^q,\mK\mW_i^K,\mV\mW_i^V)
+\end{align}
+where projections are parameter matrices $\mW_i^q\in\sR^{E\times
+  E},\;\mW_i^K\in\sR^{E\times E},\;\mW_i^V\in\sR^{E\times
+  E},\;\mW_i^O\in\sR^{hE\times E}$. In this paper we use MHA as
+one building block as illustrated in
+Figure~\ref{fig:sa_net}.
+
+SA employs MHA as the skill policy. At each time step, the skill
+policy $P(\hat{\rvo}_t|\rvs_t,\hat{\rvo}_{t-1};\mW_s)$ attends to
+(measures the compatibility of) all skill context vectors in
+$\mW_s$ according to $\rvs_t$ and $\hat{\rvo}_{t-1}$. If
+$\hat{\rvo}_{t-1}$ still fits $\rvs_t$, then the skill policy
+assigns a larger attention weight to $\hat{\rvo}_{t-1}$, thus has
+a tendency to continue with it. Otherwise, a new skill with
+better compatibility will be sampled. The action policy is as
+simple as one decoder to decode $\hat{\rvo}_t$ and $\rvs_t$ into
+primary actions $\rva_t$. The attention mechanism together with
+skill context vectors enable SA to temporally extend skills even
+in the absence of termination functions.
+
+Specifically, a \textbf{skill policy} (Eq.~(\ref{eq:sa_o_p}))
+uses a concatenation of current state $\rvs_t$ and previous skill
+context vector $\hat{\rvo}_{t-1}$ as the query for MHA. Both key
+and value matrices are the skill context matrix $\mW_S$. In this
+way, we have:
+
+\begin{align}
+  \label{eq:sa_net_skill_concat}
+  \hat{\rvs}_{t-1} &= linear(\text{Concat}[\rvs_t,\hat{\rvo}_{t-1}]),\\
+  \label{eq:sa_net_skill_mha}
+  \rvd^O_t &= \text{MHA}(\hat{\rvs}_{t-1},\mW_S,\mW_S),\\
+  \label{eq:sa_net_skill_sample}
+  \rvo_t &\sim Categorical(\rvo_t|\rvd^O_t),
+\end{align}
+where the $linear$ layer simply projects the concatenated vector
+to $E$ dimension. MHA is employed to attend to (measures the
+compatibility of) all skills in $\mW_s$ according to $\rvs_t$ and
+$\hat{\rvo}_{t-1}$. The \textbf{skill density vector} $\rvd^O_t$
+is then used as densities for a Categorical distribution
+$P(\rvo_t|\rvd^O_t)$, from which the new one-hot \textbf{skill
+  index vector} $\rvo_t$ is sampled from. We can retrieve the
+\textbf{skill context vector} by $\hat{\rvo}_t =
+\mW_S^T\cdot\rvo_t$. With the skill context vector $\hat{\rvo}_t$
+in hand, the \textbf{action policy} can be designed as simple as
+a multi-layer Feed-Forward Networks (FFN) decoder:
+\begin{align}
+  \label{eq:sa_net_action_concat}
+  \rvd^A_t &= \text{FFN}(\rvs_t,\hat{\rvo}_{t}),\\
+  \label{eq:sa_net_action_sample}
+  \rva_t &\sim P(\rva_t|\rvd^A_t),
+\end{align}
+where $\rvd^A_t$ is a density vector and $P$ is an arbitrary
+probability distribution (works for both discrete and continuous
+situations).
+
+Similar to \citename{zhang2019dac}, because of the \textbf{skill
+  value upon arrival function} $V(\rvs_t,\hat{\rvo}_{t-1})$,
+(Eq.~\ref{eq:sa_v}) is an expectation of the \textbf{skill value
+  function} $Q_O[\rvs_{t},\hat{\rvo}_{t}]$ (Eq.~\ref{eq:sa_q_o}).
+It is sufficient for us to model only one critic function:
+\begin{equation}
+  \label{eq:nn_o_input}
+  Q_O=\text{FFN}(\rvs_t,\hat{\rvo}_t),
+\end{equation}
+where $Q_O$ is implemented as a multi-layer FFN. We summarize the
+detailed learning procedures in Algorithm~\ref{alg:sa}.
+
 \begin{algorithm}[htb]
 \SetAlgoLined
   Initialize the skill embedding matrix $\mW_S$\;
@@ -1696,96 +1202,17 @@ $\theta_a$ $\leftarrow$ $PPO(\frac{\partial P(\rva|\rvs,\rvo)}{\partial \theta_a
   architecture}
 \end{algorithm}
 
-\section{Implementation Details}
-\label{sec:append_implement}
-
-In this section we summarize our implementation details. For a
-fair comparison, all baselines: DAC+PPO \cite{zhang2019dac},
-AHP+PPO \cite{levy2011unified}, PPOC
-\cite{klissarov2017learnings}, OC \cite{bacon2017option} and PPO
-\cite{schulman2017proximal} are from DAC's open source Github
-repo: https://github.com/ShangtongZhang/DeepRL/tree/DAC.
-Hyper-parameters used in DAC~\cite{zhang2019dac} for all these
-baselines are kept unchanged.
-
-\textbf{SA Architecture:} For all experiments, our implementation
-of SA is exactly the same as Figure~\ref{fig:sa_net} (b). We use
-Pytorch to build neural networks. Specifically, for skill policy
-module, we use a skill context matrix $\mW_S\in \sR^{4\times 40}$
-which has $4$ skills ($4$ rows) and an embedding size of $40$
-($40$ columns). For Multi-Head Attention, we use Pytorch's
-built-in MultiheadAttention
-function\footnote{https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html}
-with $num\_heads=1$ and $embed\_dim=40$. For layer normalization
-we use Pytorch's built-in function LayerNorm
-\footnote{https://pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html}.
-For Feed Forward Networks (FNN), we use a 2 layer FNN with ReLu
-function as activation function with input size of $40$, hidden
-size of $64$, and output size of $64$ neurons. For Linear layer,
-we use built-in Linear
-function\footnote{https://pytorch.org/docs/stable/generated/torch.nn.Linear.html}
-to map FFN's outputs to $4$ dimension. Each dimension acts like a
-logit for each skill and is used as density in Categorical
-distribution\footnote{https://github.com/pytorch/pytorch/blob/master/torch/distributions/categorical.py}.
-For both action policy and critic module, FFNs are of the same
-size as the one used in the skill policy.
-
-\textbf{Preprocessing:} States are normalized by a running
-estimation of mean and std.
-
-
-\textbf{Hyperparameters of PPO:} For a fair comparison, we use
-exactly the same parameters of PPO as DAC. Specifically:
-\begin{itemize}
-\item Optimizer: Adam with $\epsilon= 10^{-5}$ and an initial
-  learning rate $3 \times 10^{-4}$
-
-\item Discount ratio $\gamma$: $0.99$
-
-\item GAE coefficient: $0.95$
-
-\item Gradient clip by norm: $0.5$
-
-\item Rollout length: $2048$ environment steps
-
-\item Optimization epochs: $10$
-
-\item Optimization batch size: $64$
-
-\item Action probability ratio clip: $0.2$
-\end{itemize}
-
-
-\textbf{Computing Infrastructure:} We conducted our experiments
-on an Intel® Core™ i9-9900X CPU @ 3.50GHz with a single thread
-and process with PyTorch.
-
-\section{Multi-Head Attention (MHA) Mechanism}
-\label{sec:appen_mha}
-
-Specifically, an attention mechanism is described as the mapping
-from a query $\rvq\in\sR^{E}$ and a set of key-value pairs, i.e.,
-$\mK\in\sR^{M\times E}$ and $\mV\in\sR^{M\times E}$ ($M$ and $E$
-are total number of skills and embedding dimensions defined in
-section~\ref{sec:sa_PGM}), to an output:
-\begin{equation}
-  \label{eq:sa_net_attn}
-Attention(\rvq,\mK,\mV) = \text{softmax}(\frac{\rvq\mK^T}{\sqrt{E}})\mV
-\end{equation}
-A Multi-Head Attention $\text{MHA}(\rvq,\mK,\mV)$ is a linear
-projection of $\rh$ (number of heads) concatenated linearly
-projected $Attention$ outputs:
-\begin{align}
-  \label{sa:sa_net_mha}
-  \text{MHA}(\rvq,\mK,\mV) &= \text{Concat}[\text{head}_1,\ldots,\text{head}_h]\mW^H\\
-  \nonumber \text{where head}_i &= Attention(\rvq\mW_i^q,\mK\mW_i^K,\mV\mW_i^V)
-\end{align}
-where projections are parameter matrices $\mW_i^q\in\sR^{E\times
-  E},\;\mW_i^K\in\sR^{E\times E},\;\mW_i^V\in\sR^{E\times
-  E},\;\mW_i^O\in\sR^{hE\times E}$. In this paper we use MHA as
-one building block as illustrated in
-Figure~\ref{fig:sa_net}.
-
+Since $\hat{\rvo}_t$ encodes all context of a skill, SA only
+needs one action policy decoder to decode the activated skill
+context vectors $\hat{\rvo}_t$ and current state $\rvs_t$ into
+primary actions $\rva_t$. This design choice largely improves the
+scalability of SA: adding one more skill is as cheap as adding a
+skill context vector. Moreover, unlike the option framework, in
+which only the activated option's action policy gets updated, the
+action policy learns to decode each dimension of skill context
+vectors at every time step. This design choice largely improves
+sample efficiency and enables SA to converge faster than the
+conventional option framework.
 
 %%% Local Variables:
 %%% mode: latex
