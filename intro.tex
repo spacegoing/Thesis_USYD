@@ -37,7 +37,7 @@ of a probability distribution in a formal graph, important
 properties, such as conditional independence properties, can be
 obtained by inspection of the graph. Moreover, since PGMs
 establish a formal connection between probability theories and
-the graph theory, computational expensive tasks, such as
+the graph theory, computationally expensive tasks, such as
 inference and learning in sophisticated models, can be solved
 efficiently by employing efficient graph algorithms
 \cite{Ladicky:ECCV10,Rother:CVPR09,Kohli:TR08}.
@@ -45,22 +45,23 @@ efficiently by employing efficient graph algorithms
 As graphs, PGMs can also be categorized into directed PGMs,
 undirected PGMs and a hybrid of both (such as chain graphs
 \cite{lauritzen1989graphical,frydenberg1990chain}, it contains
-both undirected PGM and directed PGM). We illustrate PGMs of the
-Hidden Markov Models \cite{eddy1996hidden} (HMMs) which is a type
-of directed model, as well as Markov Random Fields
+both undirected PGMs and directed PGMs). We illustrate PGMs of
+the Hidden Markov Models \cite{eddy1996hidden} (HMMs) which is a
+type of directed model, as well as Markov Random Fields
 \cite{Hammersley:1971} (MRFs) which is also known as undirected
 PGMs \cite{bishop:2006:PRML} in Figure \ref{fig:intro_hmm_mrf}.
 Figure \ref{fig:intro_hmm_mrf} (a) denotes an HMM, in which $S$
 nodes denote random variables of environment states, namely the
 observed information. $Y$ nodes are random variables for latent
-information. The probability dependence flows according to the
-link's direction. In this graph, $S$ is sequentially dependent on
-parent nodes. $Y$ node only depends on corresponding $S$ node at
-the same time step. Figure \ref{fig:intro_hmm_mrf} (b) denotes a
-MRF, each node in this graph represents a random variable of an
-entity. Directions of probability dependence in this model is
-unspecified: information flows are complex and keep changing over
-time.
+information. Directions of the probability dependencies are
+represented by connecting links' directions. In this graph, $S$
+nodes are sequentially dependent on parent nodes. $Y$ nodes only
+depend on corresponding $S$ nodes at the same time step. Figure
+\ref{fig:intro_hmm_mrf} (b) denotes a MRF, each node in this
+graph represents a random variable of an entity (such as a city).
+Directions of probability dependencies in this model is
+unspecified: directions of information flows are complex and keep
+changing over time.
 \begin{figure*}[h]
   \centering
   \begin{tabular}{cc}
@@ -99,17 +100,17 @@ strong assumptions and real world problems
 These long standing challenges mainly fall into three categories:
 %
 \begin{enumerate}
-\item Heterogeneous (Non-stationary) distributions (single
+\item Heterogeneous (Non-stationary) distributions (of a single
   sequence). Dependency relationships (\eg transition probability
   distributions of a Markov chain etc.) keep changing over time
   \cite{ross1996stochastic}.
-\item Multi-timescale (Multi-frequencies) information dependency
-  (single sequence). Even for a single sequence, information
+\item Multi-timescale (Multi-scale) information dependency (of a
+  single sequence). Even for a single sequence, information
   encoded in long and short time scale are inter-dependent.
   Information extracted from a single time scale is incomplete
   \cite{mandelbrot1997multifractal}.
-\item Higher-order (greater than or equal to 3) dynamics
-  (multi-sequences). Most sequences not only have dependencies on
+\item Higher-order (greater than or equal to 3) dynamics (of
+  multi-sequences). Most sequences not only have dependencies on
   themselves. They are also strongly affected by other correlated
   sequences and have complex dynamics (\eg directions of
   information flow keep changing over time) dependencies with
