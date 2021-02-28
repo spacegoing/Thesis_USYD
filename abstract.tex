@@ -12,57 +12,34 @@ Probabilistic Graphical Models (PGMs) framework: learning
 multi-timescale representations on a single sequence and learning
 higher-order dynamics between multi-sequences. The first
 challenge is tackled with Hidden Markov Models (HMMs), a type of
-directed PGMs, under the reinforcement learning framework. With
-the help of conditional independence properties encoded in HMMs,
-I prove that the Semi-Markov Decision Problem (SMDP) formulated
+directed PGMs, under the reinforcement learning framework. I
+prove that the Semi-Markov Decision Problem (SMDP) formulated
 option framework
 \cite{sutton1999between,bacon2017option,zhang2019dac}, one of the
 most promising Hierarchical Reinforcement Learning (HRL)
 frameworks, has a Markov Decision Problem (MDP) equivalence.
 Based on this equivalence, a simple yet effective Skill-Action
-(SA) architecture is proposed. SA can not only extract skills
-(abstract actions) hierarchically from primary actions into skill
-context vectors (embedding vectors), but also temporally extend
-skills by employing the attention mechanism. Our empirical
-studies on challenging robot simulation environments demonstrate
-that SA significantly outperforms all baselines on both
-single-task infinite horizon environments and transfer learning
-environments. Compared to other option variants, SA has smaller
-variance, faster convergence, and better interpretability.
-Because of its exceptional scalability, SA has the potential to
-pave the way for a large scale pre-training architecture in
-reinforcement learning.
-
-The second challenge is tackled with Markov Random Fields (MRFs),
-also known as undirected PGMs, under the supervised learning
-framework. I employ binary MRFs with weighted Lower Linear
-Envelope Potentials (LLEPs) as the higher-order energy function
-to capture higher-order dependencies. I propose an exact
+(SA) architecture is proposed. Our empirical studies on
+challenging robot simulation environments demonstrate that SA
+significantly outperforms all baselines on both infinite horizon
+and transfer learning environments. Because of its exceptional
+scalability, SA gives rise to a large scale pre-training
+architecture in reinforcement learning. The second challenge is
+tackled with Markov Random Fields (MRFs), also known as
+undirected PGMs, under the supervised learning framework. I
+employ binary MRFs with weighted Lower Linear Envelope Potentials
+(LLEPs) to capture higher-order dependencies. I propose an exact
 inference algorithm under the graph-cuts framework and an
 efficient learning algorithm under the Latent Structural Support
-Vector Machines (LSSVMs) framework. Experiments on synthetic
-checkerboard show that the novel formulation of binary MRFs can
-learn LLEPs exactly other than previous studies which can only
-learn LLEPs approximately
-\cite{gouldlearning,narayanaswamy2017learning}. I extend this
-model to learn higher-order dynamics between time series and
-conduct experiments on financial stock data set. Stock price's
-movements not only depend on the historical price of an
-individual stock, but also has unobserved higher order dynamics
-with other correlated stocks. In order to learn these
-higher-order latent dynamics, we present a multi-task recurrent
-neural network (RNN) with high-order Markov random fields (MRFs)
-to predict directions of stock price movements. Specifically, I
-first design a multi-task RNN framework to extract informative
-features from the raw market data of individual stocks without
-considering any domain knowledge. Then a sub-gradient algorithm
-is employed to perform end-to-end training of the RNN and the
-binary MRFs with high-order energy functions. We conduct thorough
-empirical studies on three popular Chinese stock market indexes
-and the proposed method outperforms baseline approaches. To our
-best knowledge, the proposed technique is the first to
-investigate intra-clique relationships with higher-order MRFs for
-stock price movement prediction.
+Vector Machines (LSSVMs) framework. In order to learn
+higher-order latent dynamics on time series, we layer multi-task
+recurrent neural networks (RNNs) on top of Markov random fields
+(MRFs). A sub-gradient algorithm is employed to perform
+end-to-end training. We conduct thorough empirical studies on
+three popular Chinese stock market indexes and the proposed
+method outperforms all baselines. To our best knowledge, the
+proposed technique is the first to investigate higher-order
+dynamics between stocks.
 
 %%% Local Variables: 
 %%% mode: latex

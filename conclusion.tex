@@ -2,110 +2,88 @@
 %% Template conclusion.tex
 %%
 
-\chapter{Conclusion and Future Work}
+\chapter{Conclusion}
 \label{cha:conclusion}
 
-We summarize our work in this chapter. We will also conclude its
-advantages and disadvantages basing on our synthetic
-(section~\ref{sec:synth-check}) experiment's results. Our work
-also provide some insights to our future work which we will
-briefly discuss in this chapter.
 
+This thesis investigates two long-standing yet rarely explored
+sequence learning challenges under the Probabilistic Graphical
+Models (PGMs) framework: learning multi-timescale representations
+on a single sequence and learning higher-order dynamics between
+multi-sequences.
 
-\section{Conclusion}
-\label{sec:conclusion}
+In Part \ref{part:1} we demonstrate the first challenge by
+exploiting deep Hidden Markov Models, a type of directed PGMs,
+under the Reinforcement Learning (RL) paradigm. We prove that the
+Semi-Markov Decision Problem (SMDP) formulated option framework
+has a Markov Decision Problem (MDP) equivalence, namely the
+Skill-Action framework. To the best of our knowledge, this is the
+first work proving this equivalence and giving the temporal
+abstraction problem a Probabilistic Graphical Models (PGMs)
+description. This is also the first work introducing the
+prevalent and powerful Transformer neural networks into the
+Reinforcement Learning paradigm. As shown in our
+experiments~\ref{cha:sa_app}, compared to the option framework,
+SA outperforms all baselines on infinite horizon environments and
+is much simpler yet more effective. It has shown an exceptional
+scalability and paves the way for a large scale pre-training
+framework in Reinforcement Learning.
 
-Lower linear envelope binary MRFs are raising interests due to
-its capability for encoding higher-order consistency constraints
-over large sets of random variables. \citename{gouldlearning} has
-shown how to perform exact inference and learning of this problem
-under the max margin framework. In order to transform the lower
-linear envelope function to a linear combination formulation,
-they interpolates it with a set of fixed space sample points.
-Thus their algorithm is only able to learn the shape of the lower
-linear envelope function approximately.
+One of the most important contribution in Part \ref{part:1} is
+the novel \textbf{wide value function} proposed in
+\Secref{sec:sa_mdp}. Rather than use the conventional value
+function $V[\rvs_t]$, we define the \textbf{skill value upon
+  arrival function} as a wide value function
+$V[\rvs_t,\hat{\rvo}_{t-1}]$. We also prove that the wide value
+function is an unbiased estimation of the conventional value
+function, and it even has a smaller variance than the
+conventional one. The wide value function is the key component of
+proving the equivalence between the SMDP formulated option
+framework and SA. As discussed in~\Secref{sec:append_gist}, it is
+also the solution to learn skills at multi-level granularities,
+which is a long standing challenge in Hierarchical Reinforcement
+Learning. To the best of our knowledge, this is the first work
+identifying multi-level granularities of skills problem and
+proposing a solution to this problem.
 
-The main goal of our research is to learn the lower linear
-envelope function exactly. Based on their work, we explore a
-variant of their formulation by introducing auxiliary variables
-back to the energy function to formulate an exact representation.
-We find that the lower linear envelope function under the
-quadratic pseudo-Boolean formulation~\eqref{eq:originalenergy}
-itself is an inner product of parameters and features thus can be
-written into a linear combination directly. Under this
-formulation the inference algorithm (\emph{st min cut}
-construction) developed by \citename{gouldlearning} still adapts
-to our problem. Therefore, we are still able to conduct exact
-inference on our problem. We developed the learning
-\algref{alg:learning} using an extension of the max margin
-framework which is known as latent structural SVM. However, this
-algorithm is only guaranteed to decrease the objective function
-to a local minimum thus the initial point will affect the overall
-performance. In order to overcome this issue we also proposed an
-empirical initialization \algref{alg:init_theta}.
+For the higher-order dynamics challenge, in Part \ref{part:2} we
+demonstrate it by exploiting Markov Random Fields (MRFs), also
+known as undirected PGMs, under the supervised learning
+framework. Our main contribution in Part \ref{part:2} is
+proposing an exact inference algorithm of binary MRFs with Lower
+Linear Envelope Potentials (LLEPs) as higher-order energy
+functions in \Secref{sec:exact_inference}. Computational
+complexity of inference algorithms on MRFs with higher order
+potentials grows exponentially with the scale of MRFs. By
+exploiting MRFs' graphical nature, we are able to formulate the
+binary MRFs into pseudo-boolean functions and solving the
+inference problem under the efficient graph-cuts algorithm. We
+also propose an efficient learning algorithm for MRFs with LLEPs
+energy functions by employing the Latent Structural Support
+Vector Machines (LSSVMs) algorithm in \Secref{sec:opt}.
+Experiments in \Secref{sec:synth-check} show that the MRF-LSSVMs
+framework can learn LLEPs exactly and outperforms previous works
+by a large margin.
 
-In order to examine the effectiveness of our new algorithm, we
-repeat two experiments \citename{gouldlearning} conducted in
-their research and compare both results. In the first synthetic
-checkerboard experiment, we found that in general the new
-algorithm's accuracy is at least as well as the previous one. But
-on harder problem~\ref{sec:unif-distr-squar} the new method
-outperforms previous one significantly. The new method is much
-more computationally expensive during the training period.
-However it is more efficient during the testing stage because of
-the simplicity of the shape of the lower linear envelope. We also
-found that the shape learned by the new method can shift along
-with the changes of the input data which proves that we can learn
-the lower linear envelope exactly.
-
-At last we summarize the advantages and disadvantages as
-following.
-
-\bigskip
-
-Advantages of the new method (compared to the previous
-method~\cite{gouldlearning,Gould:ICML2011}):
-
-\begin{itemize}
-\item Able to learn the lower linear envelope exactly.
-\item Performs better (higher accuracy) on harder problems.
-\item Efficient to compute during testing due to the simplicity
-  of the shape of the lower linear envelope function.
-\end{itemize}
-
-Disadvantages of the new method:
-
-\begin{itemize}
-\item Only guaranteed to decrease to the local minimum.
-\item Computationally expensive during training.
-\item Generalization various significantly.
-\end{itemize}
-
-
-\section{Future Work}
-\label{sec:futurework}
-
-As we suggested in the conclusion, our new method seems to have
-some generalization issues. It will be our primal goal to keep
-investigating into this problem. We also proposed an empirical
-initialization method in
-section~\ref{sec:mrflssvm_learning_algo}. For future work we
-would compare this method to others.
-
-Our research also provide insights to further directions.
-Extending our approach to multi-label MRFs seems to be very
-promising. Other straightforward extensions include the
-introduction of features for modulating the higher-order terms
-and the use of dynamic graph cuts~\cite{Kohli:PAMI07} for
-accelerating loss-augmented inference within our learning
-framework. Other optimization algorithms for solving our learning
-problem may also be considered, \eg the subgradient
-method~\cite{Nowozin:2011, Bertsekas:2004}.
-
-
-
-
-
+We also extend the MRF-LSSVMs framework to time series and apply
+it to financial time-series data set in
+\Chapref{cha:mrf_lssvm_app}. By designing a multi-task Recurrent
+Neural Networks (RNNs) as a unary feature extractor, we are able
+to treat each stock as a node in MRFs and represent the unary
+energy as RNNs extracted embeddings. One special advantage of
+financial data set is that higher-order maximum cliques are
+explicitly defined by financial index companies as sector lists,
+such as energy sectors and consumer sectors. By using these
+industry defined sector lists as maximum cliques, we are able to
+model higher-order dynamics between stocks by employing the
+MRF-LSSVMs framework. We propose a sub-gradient algorithm to
+perform end-to-end training of the RNN and the binary MRFs with
+high-order energy functions. We conduct thorough empirical
+studies on three popular Chinese stock market indexes and the
+proposed method outperforms baseline approaches. To our best
+knowledge, the proposed technique is the first work to
+investigate higher-order dynamics with MRFs for stock price
+movement prediction.
 
 %%% Local Variables: 
 %%% mode: latex

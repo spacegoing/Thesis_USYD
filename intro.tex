@@ -119,15 +119,15 @@ These long standing challenges mainly fall into three categories:
 \end{enumerate}
 %
 In this thesis, we relax conventional assumptions, such as the
-$i.i.d$ (Independent and identically distributed) assumption, on
+$i.i.d$ (independent and identically distributed) assumption, on
 sequences and demonstrate challenges above under the
 Probabilistic Graphical Models (PGMs) framework. Among three
 challenges, the first heterogeneous assumption is the most
 general assumption, and has to be treated differently while
 addressing the second and third challenges. Therefore, we split
-this thesis into two parts. Part One \ref{part:1} addresses the
+this thesis into two parts. Part \ref{part:1} addresses the
 multi-timescale challenge by using directed PGMs under the
-Reinforcement Learning paradigm. Part Two \ref{part:2} addresses
+Reinforcement Learning paradigm. Part \ref{part:2} addresses
 the higher-order dynamics challenge by using undirected PGMs
 under the Supervised Learning paradigm. Both two parts are under
 the heterogeneous assumption. The arrangement of this thesis is
@@ -135,32 +135,33 @@ shown in Figure \ref{fig:intro_content}.
 \begin{figure*}[h]
   \centering
   \includegraphics[width=1\linewidth]{figures/content.png}\\
-  \caption{\label{fig:intro_content} Thesis Arrangement. Part One
-    focuses on learning one single sequence. Multi-timescale
-    information is abstracted by Hidden Markov Models (HMMs)
-    under the Reinforcement Learning paradigm. Part Two focuses
-    on learning dynamics between groups of sequences. Dynamics
-    among higher-order groups (any group contains greater or
-    equal to three entities) of sequences is captured by Markov
-    Random Fields (MRFs) under the Supervised Learning paradigm.}
+  \caption{\label{fig:intro_content} Thesis Arrangement. Part
+    \ref{part:1} focuses on learning one single sequence.
+    Multi-timescale information is abstracted by Hidden Markov
+    Models (HMMs) under the Reinforcement Learning paradigm. Part
+    \ref{part:2} focuses on learning dynamics between groups of
+    sequences. Dynamics among higher-order groups (any group
+    contains greater or equal to three entities) of sequences is
+    captured by Markov Random Fields (MRFs) under the Supervised
+    Learning paradigm.}
 \end{figure*}
 
-Part One \ref{part:1} focuses on demonstrating the
-multi-timescale challenge \cite{mandelbrot1997multifractal} on a
-single sequence. The multi-timescale, or more generally,
-multi-scale problem presents a common phenomenon that information
-on different scales of the same entity are inter-dependent: they
-are interwoven in both micro and macro scales. In order to
-understand the sequence, information encoded in different scales
-must be considered simultaneously: details are lost when the
-attention is only paid to the macro scale, while the big picture
-is overlooked when only the micro scale is paid attention to.
-This phenomenon does not only restrict to temporal sequences, it
-also applies to other sequences such as natural languages and
-even images. We illustrate this idea in Figure
-\ref{fig:intro_fractal}. However, in this thesis we mainly use
-temporal sequences for experiments and use the term
-``multi-timescale'' over ``multi-scale'' for convenience.
+Part \ref{part:1} focuses on demonstrating the multi-timescale
+challenge \cite{mandelbrot1997multifractal} on a single sequence.
+The multi-timescale, or more generally, multi-scale problem
+presents a common phenomenon that information on different scales
+of the same entity are inter-dependent: they are interwoven in
+both micro and macro scales. In order to understand the sequence,
+information encoded in different scales must be considered
+simultaneously: details are lost when the attention is only paid
+to the macro scale, while the big picture is overlooked when only
+the micro scale is paid attention to. This phenomenon does not
+only restrict to temporal sequences, it also applies to other
+sequences such as natural languages and even images. We
+illustrate this idea in Figure \ref{fig:intro_fractal}. However,
+in this thesis we mainly use temporal sequences for experiments
+and use the term ``multi-timescale'' over ``multi-scale'' for
+explicitness.
 
 \begin{figure*}[h]
   \centering
@@ -201,11 +202,12 @@ target for inputs $\mX_t$ at time step $t$ where $N$ is a
 constant. Such assumption no longer holds under the
 multi-timescale dependence assumption because $N$ becomes a
 variable rather than a constant. $\mX_t$ can be responsible for
-generating $y_{t+?}$ any time longer than the fixed-term $N$.
-This makes Reinforcement Learning \cite{sutton2018reinforcement}
-(RL), a framework which does not require ground-truth labels and
-learns from interactions with the environment, the perfect
-paradigm for modeling multi-timescale sequences.
+generating $y_{t+?}$ any time earlier or later than the
+fixed-term $N$. This makes Reinforcement Learning
+\cite{sutton2018reinforcement} (RL), a framework which does not
+require ground-truth labels and learns from interactions with the
+environment, the perfect paradigm for modeling multi-timescale
+sequences.
 
 Reinforcement Learning (RL) is a paradigm for imitating humans'
 trial-and-error learning process. In RL, there is no ``correct
@@ -229,10 +231,10 @@ amount of time. Primary actions are lower-level actions defined
 by the environment. They are executed at every time step. For
 example, for a humanoid robot, walking and jumping are two
 abstract skills, while movements of each joint are primary
-actions. The main contribution of Part One focuses on solving the
-first two challenges together by employing the option framework
-\cite{sutton1999between}, one of the most promising Hierarchical
-Reinforcement Learning (HRL) frameworks.
+actions. The main contribution of Part \ref{part:1} focuses on
+solving the first two challenges together by employing the option
+framework \cite{sutton1999between}, one of the most promising HRL
+frameworks.
 
 The option framework is developed based on the Semi-Markov
 Decision Problem (SMDP). There are, however, four inherent
@@ -261,7 +263,7 @@ and demonstrates its advantage in knowledge reuse tasks. SA has
 the potential to pave the way for a large scale pre-training
 architecture in reinforcement learning.
 
-Part Two \ref{part:2} addresses the higher-order dynamics between
+Part \ref{part:2} addresses the higher-order dynamics between
 multiple sequences by using undirected PGMs under the Supervised
 Learning paradigm. Most existing sequence learning literatures
 \cite{sargent1993bounded,jegadeesh1993returns,shiller1980stock,
@@ -364,7 +366,7 @@ proposed in \Secref{sec:opt}.
 
 The objective of this thesis is to demonstrate three challenges
 in sequence learning as mentioned above. The thesis consists of
-two parts. Part One \ref{part:1} addresses the multi-timescale
+two parts. Part \ref{part:1} addresses the multi-timescale
 challenge by using directed PGMs under the Reinforcement Learning
 paradigm. In \Chapref{cha:sa}, we propose a simple yet effective
 the Skill-Action (SA) architecture, to model multi-timescale
@@ -372,7 +374,7 @@ sequences based on Markov Decision Problems (MDPs). We also
 develop the optimization framework for SA under the Hierarchical
 Reinforcement Learning (HRL) paradigm. In \Chapref{cha:sa_app},
 we conduct experiments of SA on challenging robots simulation
-environments and demonstrate the effectiveness of SA. Part Two
+environments and demonstrate the effectiveness of SA. Part
 \ref{part:2} addresses the higher-order dynamics challenge by
 using undirected PGMs under the Supervised Learning paradigm. In
 \Chapref{cha:mrf}, we propose the novel MRF-LSSVMs to model
